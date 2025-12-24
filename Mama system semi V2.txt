@@ -1,0 +1,972 @@
+---------
+MAMA Hub Ver.1
+---------
+Code HTML
+---------
+
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2026 MAMA Advisory Framework</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Sarabun', 'sans-serif'],
+                    },
+                    colors: {
+                        mama: {
+                            blue: '#002c62',     /* New Blue #002c62 */
+                            darkBlue: '#001a3d',
+                            orange: '#f68a1f',   /* New Orange #f68a1f */
+                            lightOrange: '#fff5eb',
+                            bg: '#f0f4f8',       /* Slightly darker bg to pop glass effect */
+                        }
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.6s ease-out forwards',
+                        'slide-up': 'slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
+                        },
+                        slideUp: {
+                            '0%': { opacity: '0', transform: 'translateY(20px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; background-image: radial-gradient(circle at 10% 20%, rgba(246, 138, 31, 0.05) 0%, rgba(0, 44, 98, 0.05) 90%); }
+        
+        /* Glassmorphism Styles */
+        .glass-nav {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.03);
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 8px 32px 0 rgba(0, 44, 98, 0.05);
+        }
+
+        .glass-modal {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+        
+        .glass-dark {
+            background: rgba(0, 44, 98, 0.85);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+        }
+
+        /* Navigation Active State */
+        .nav-btn-active {
+            background: linear-gradient(135deg, #f68a1f 0%, #e07000 100%);
+            color: white !important;
+            box-shadow: 0 4px 15px rgba(246, 138, 31, 0.35);
+            transform: translateY(-1px);
+        }
+
+        /* Card Hover Effects */
+        .hover-lift {
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .hover-lift:hover {
+            transform: translateY(-6px);
+            background: rgba(255, 255, 255, 0.9);
+            box-shadow: 0 15px 30px -5px rgba(0, 44, 98, 0.1);
+            border-color: rgba(246, 138, 31, 0.3);
+        }
+
+        /* MAMA Book Effect */
+        .book-spine {
+            background: linear-gradient(90deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 20%, rgba(0,0,0,0.1) 100%);
+        }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+<body class="bg-mama-bg text-slate-800 min-h-screen flex flex-col overflow-x-hidden">
+
+    <!-- 1. AUTHENTICATION & LOADING OVERLAY -->
+    <div id="authOverlay" class="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-gradient-to-br from-mama-darkBlue to-mama-blue text-white transition-opacity duration-500">
+        
+        <!-- Loading State -->
+        <div id="loadingState" class="flex flex-col items-center">
+            <div class="relative w-16 h-16 mb-6">
+                <div class="absolute inset-0 border-4 border-white/20 rounded-full"></div>
+                <div class="absolute inset-0 border-4 border-t-mama-orange border-r-transparent border-b-transparent border-l-transparent rounded-full animate-spin"></div>
+            </div>
+            <h2 class="text-xl font-bold tracking-[0.2em] animate-pulse">SYSTEM LOADING</h2>
+            <p id="statusMsg" class="mt-2 text-xs text-blue-200 font-light">Establishing secure connection...</p>
+        </div>
+
+        <!-- Login State -->
+        <div id="loginState" class="hidden w-full max-w-md px-6 animate-slide-up">
+            <div class="text-center mb-10">
+                <div class="inline-block p-4 rounded-3xl bg-white/5 backdrop-blur-md mb-4 border border-white/10 shadow-2xl">
+                    <i class="fas fa-project-diagram text-5xl text-mama-orange drop-shadow-lg"></i>
+                </div>
+                <h1 class="text-4xl font-bold tracking-tight mb-2">MAMA <span class="text-mama-orange">Hub</span></h1>
+                <p class="text-blue-200/80 text-sm tracking-wide font-light">Advisory Framework Portal 2026</p>
+            </div>
+            
+            <div class="glass-dark p-8 rounded-3xl relative overflow-hidden group">
+                <!-- Ambient Glow -->
+                <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-mama-orange to-transparent opacity-60"></div>
+                
+                <form onsubmit="event.preventDefault(); attemptLogin();">
+                    <label class="block text-xs font-bold text-blue-300 uppercase tracking-wider mb-2 ml-1">Access Code</label>
+                    <div class="relative mb-6">
+                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                            <i class="fas fa-key text-blue-400/50"></i>
+                        </div>
+                        <input type="password" id="passcodeInput" 
+                            class="w-full bg-black/20 border border-blue-400/20 rounded-xl py-3.5 pl-11 pr-4 text-white placeholder-blue-400/30 focus:outline-none focus:border-mama-orange/60 focus:bg-black/40 transition-all text-lg tracking-widest text-center"
+                            placeholder="••••••" autocomplete="off">
+                    </div>
+                    
+                    <button type="submit" class="w-full bg-gradient-to-r from-mama-orange to-orange-600 hover:from-orange-500 hover:to-orange-700 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-orange-900/20 transition-all transform active:scale-[0.98] flex items-center justify-center">
+                        <span>Access System</span>
+                        <i class="fas fa-arrow-right ml-2 text-sm opacity-80"></i>
+                    </button>
+                </form>
+                <p id="loginError" class="text-red-400 text-xs text-center mt-4 h-4 font-medium"></p>
+            </div>
+            <p class="mt-8 text-xs text-center text-white/30 font-light">Authorized Personnel Only • PRU Academy</p>
+        </div>
+    </div>
+
+    <!-- 2. MAIN APP INTERFACE -->
+    <div id="mainApp" class="hidden flex flex-col flex-1 min-h-screen">
+        
+        <!-- Header / Navbar (Glass) -->
+        <header class="sticky top-0 z-40 glass-nav transition-all duration-300" id="mainHeader">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between items-center h-16 md:h-20">
+                    <!-- Brand -->
+                    <div class="flex items-center cursor-pointer group" onclick="selectCategory('Home')">
+                        <div class="w-10 h-10 rounded-xl bg-mama-blue flex items-center justify-center text-white shadow-lg shadow-blue-900/20 mr-3 transition-transform group-hover:scale-110">
+                            <i class="fas fa-cubes text-lg"></i>
+                        </div>
+                        <div class="flex flex-col">
+                            <span class="font-bold text-xl leading-none text-mama-blue tracking-tight">MAMA <span class="text-mama-orange">System</span></span>
+                            <span class="text-[10px] text-gray-400 font-medium tracking-wide mt-1">ADVISORY FRAMEWORK</span>
+                        </div>
+                    </div>
+
+                    <!-- User Profile & Actions -->
+                    <div class="flex items-center gap-3">
+                        <div id="userBadge" class="hidden md:flex items-center px-4 py-1.5 bg-white/50 backdrop-blur rounded-full border border-gray-200/50 shadow-sm">
+                            <div class="w-2 h-2 rounded-full bg-green-500 mr-2 animate-pulse"></div>
+                            <span id="userNameDisplay" class="text-xs font-bold text-slate-600">Guest</span>
+                        </div>
+                        <button onclick="window.location.reload()" class="w-9 h-9 flex items-center justify-center rounded-full text-gray-400 hover:bg-red-50 hover:text-red-500 transition-colors" title="Logout">
+                            <i class="fas fa-power-off"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main class="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col">
+            
+            <!-- Admin Toolbar -->
+            <div id="adminToolbar" class="hidden mb-6 flex justify-end gap-2 animate-fade-in">
+                <button onclick="openSettingsModal()" class="px-4 py-2 bg-white/80 backdrop-blur border border-gray-200 text-gray-600 text-sm font-semibold rounded-lg hover:bg-white hover:text-mama-blue transition flex items-center shadow-sm">
+                    <i class="fas fa-cog mr-2"></i> Settings
+                </button>
+                <button onclick="openAdminModal()" class="px-4 py-2 bg-mama-blue text-white text-sm font-semibold rounded-lg hover:bg-blue-800 transition flex items-center shadow-md shadow-blue-900/10">
+                    <i class="fas fa-plus mr-2"></i> New Content
+                </button>
+            </div>
+
+            <!-- Navigation Tabs (Glass) -->
+            <nav id="categoryNav" class="glass-nav p-1.5 rounded-2xl mb-8 grid grid-cols-5 gap-1 sticky top-24 z-30 max-w-4xl mx-auto w-full">
+                <button onclick="selectCategory('MAMA')" id="cat_MAMA" class="flex flex-col md:flex-row items-center justify-center py-2.5 rounded-xl text-gray-500 hover:bg-white/50 transition-all duration-200">
+                    <i class="fas fa-book-open text-lg mb-1 md:mb-0 md:mr-2"></i> <span class="text-xs md:text-sm font-semibold">MAMA</span>
+                </button>
+                <button onclick="selectCategory('Script')" id="cat_Script" class="flex flex-col md:flex-row items-center justify-center py-2.5 rounded-xl text-gray-500 hover:bg-white/50 transition-all duration-200">
+                    <i class="fas fa-microphone-lines text-lg mb-1 md:mb-0 md:mr-2"></i> <span class="text-xs md:text-sm font-semibold">Script</span>
+                </button>
+                <button onclick="selectCategory('OnePage')" id="cat_OnePage" class="flex flex-col md:flex-row items-center justify-center py-2.5 rounded-xl text-gray-500 hover:bg-white/50 transition-all duration-200">
+                    <i class="fas fa-file-contract text-lg mb-1 md:mb-0 md:mr-2"></i> <span class="text-xs md:text-sm font-semibold">One Page</span>
+                </button>
+                <button onclick="selectCategory('System')" id="cat_System" class="flex flex-col md:flex-row items-center justify-center py-2.5 rounded-xl text-gray-500 hover:bg-white/50 transition-all duration-200">
+                    <i class="fas fa-laptop-code text-lg mb-1 md:mb-0 md:mr-2"></i> <span class="text-xs md:text-sm font-semibold">System</span>
+                </button>
+                <button onclick="selectCategory('Update')" id="cat_Update" class="flex flex-col md:flex-row items-center justify-center py-2.5 rounded-xl text-gray-500 hover:bg-white/50 transition-all duration-200">
+                    <i class="fas fa-bullhorn text-lg mb-1 md:mb-0 md:mr-2"></i> <span class="text-xs md:text-sm font-semibold">Update</span>
+                </button>
+            </nav>
+
+            <!-- Script Sub-Filters -->
+            <div id="subFilterNav" class="hidden flex flex-wrap justify-center gap-2 mb-8 animate-fade-in">
+                <!-- Injected via JS -->
+            </div>
+
+            <!-- DYNAMIC CONTENT AREA -->
+            <div id="contentGrid" class="flex-1 min-h-[50vh] relative">
+                <!-- Content injected here -->
+            </div>
+
+        </main>
+
+        <!-- Footer Credit -->
+        <footer class="mt-auto py-6 text-center border-t border-gray-200 bg-white/40 backdrop-blur-sm">
+            <p class="text-xs text-gray-500 font-medium">
+                Powered by <span class="text-mama-blue font-bold">PRU ACADEMY</span> <span class="text-gray-400 mx-1">|</span> [ttb training team]
+            </p>
+        </footer>
+    </div>
+
+    <!-- 3. MODALS (Glassmorphism applied) -->
+    
+    <!-- Content Editor Modal -->
+    <div id="editorModal" class="fixed inset-0 z-[110] hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity"></div>
+        <div class="fixed inset-0 z-10 overflow-y-auto">
+            <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+                <div class="relative transform overflow-hidden rounded-2xl glass-modal text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-2xl">
+                    <!-- Header -->
+                    <div class="px-4 py-4 sm:px-6 border-b border-gray-100/50 flex justify-between items-center sticky top-0 z-10 bg-white/80 backdrop-blur">
+                        <h3 class="text-lg font-bold leading-6 text-slate-800 flex items-center">
+                            <span class="w-8 h-8 rounded-lg bg-blue-50 text-mama-blue flex items-center justify-center mr-3"><i class="fas fa-pen"></i></span>
+                            Content Manager
+                        </h3>
+                        <button onclick="closeModal('editorModal')" class="text-gray-400 hover:text-gray-500 transition">
+                            <i class="fas fa-times text-xl"></i>
+                        </button>
+                    </div>
+                    
+                    <!-- Form -->
+                    <form id="editorForm" class="px-6 py-6 space-y-5 max-h-[70vh] overflow-y-auto custom-scrollbar">
+                        <input type="hidden" id="editId">
+                        
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 uppercase mb-1.5">Category</label>
+                                <select id="editCategory" class="block w-full rounded-xl border-gray-200 bg-white/50 py-2.5 px-3 text-sm focus:border-mama-blue focus:ring-mama-blue shadow-sm" onchange="updateFormFields()">
+                                    <option value="Home">Home (Banner)</option>
+                                    <option value="MAMA">MAMA</option>
+                                    <option value="Script">Script</option>
+                                    <option value="OnePage">One Page</option>
+                                    <option value="System">System</option>
+                                    <option value="Update">Update</option>
+                                </select>
+                            </div>
+                            <div class="flex items-end pb-2">
+                                <label class="inline-flex items-center cursor-pointer group">
+                                    <input type="checkbox" id="editHold" class="sr-only peer">
+                                    <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-red-500"></div>
+                                    <span class="ml-3 text-sm font-medium text-gray-600 group-hover:text-red-600 transition">Suspend (Hold)</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Dynamic Fields -->
+                        <div id="fieldHoldMsg" class="hidden">
+                            <input type="text" id="editHoldMsg" placeholder="Reason for suspension..." class="w-full rounded-xl border-red-200 bg-red-50 text-red-800 placeholder-red-300 py-2.5 px-3 text-sm">
+                        </div>
+
+                        <div id="fieldSubCat" class="hidden">
+                            <label class="block text-xs font-bold text-slate-500 uppercase mb-1.5">Script Type</label>
+                            <div class="grid grid-cols-4 gap-2">
+                                <label class="cursor-pointer">
+                                    <input type="radio" name="subCat" value="Call" class="peer sr-only" checked>
+                                    <span class="block text-center py-2 rounded-lg border border-gray-200 bg-white/50 text-xs font-medium text-gray-500 peer-checked:border-mama-blue peer-checked:bg-blue-50 peer-checked:text-mama-blue transition">Call</span>
+                                </label>
+                                <label class="cursor-pointer">
+                                    <input type="radio" name="subCat" value="Counter" class="peer sr-only">
+                                    <span class="block text-center py-2 rounded-lg border border-gray-200 bg-white/50 text-xs font-medium text-gray-500 peer-checked:border-mama-blue peer-checked:bg-blue-50 peer-checked:text-mama-blue transition">Counter</span>
+                                </label>
+                                <label class="cursor-pointer">
+                                    <input type="radio" name="subCat" value="Outbound" class="peer sr-only">
+                                    <span class="block text-center py-2 rounded-lg border border-gray-200 bg-white/50 text-xs font-medium text-gray-500 peer-checked:border-mama-blue peer-checked:bg-blue-50 peer-checked:text-mama-blue transition">Outbound</span>
+                                </label>
+                                <label class="cursor-pointer">
+                                    <input type="radio" name="subCat" value="Objection" class="peer sr-only">
+                                    <span class="block text-center py-2 rounded-lg border border-gray-200 bg-white/50 text-xs font-medium text-gray-500 peer-checked:border-mama-blue peer-checked:bg-blue-50 peer-checked:text-mama-blue transition">Objection</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase mb-1.5">Title</label>
+                            <input type="text" id="editTitle" class="block w-full rounded-xl border-gray-200 bg-white/50 py-2.5 px-3 text-sm focus:border-mama-blue focus:ring-mama-blue shadow-sm" placeholder="Enter topic header...">
+                        </div>
+
+                        <div id="fieldContent" class="hidden">
+                            <label class="block text-xs font-bold text-slate-500 uppercase mb-1.5">Details / Script</label>
+                            <textarea id="editContent" rows="6" class="block w-full rounded-xl border-gray-200 bg-white/50 py-2.5 px-3 text-sm focus:border-mama-blue focus:ring-mama-blue shadow-sm" placeholder="Type content here..."></textarea>
+                        </div>
+
+                        <div id="fieldExtra" class="hidden grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 uppercase mb-1.5">URL / Link</label>
+                                <input type="url" id="editUrl" class="block w-full rounded-xl border-gray-200 bg-white/50 py-2.5 px-3 text-sm" placeholder="https://...">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 uppercase mb-1.5">Footer Note</label>
+                                <input type="text" id="editOther" class="block w-full rounded-xl border-gray-200 bg-white/50 py-2.5 px-3 text-sm" placeholder="e.g. Updated Jan 2026">
+                            </div>
+                        </div>
+
+                        <!-- Upload Areas -->
+                        <div id="fieldUpload" class="hidden">
+                             <label class="block text-xs font-bold text-slate-500 uppercase mb-1.5" id="lblUpload">Attachment</label>
+                             <div class="mt-1 flex justify-center rounded-xl border-2 border-dashed border-gray-300 px-6 pt-5 pb-6 hover:bg-white/60 transition bg-white/30 cursor-pointer relative" onclick="document.getElementById('fileInput').click()">
+                                <div class="space-y-1 text-center">
+                                    <i class="fas fa-cloud-upload-alt text-3xl text-gray-400"></i>
+                                    <div class="flex text-sm text-gray-600 justify-center">
+                                        <label class="relative cursor-pointer rounded-md font-medium text-mama-blue focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 hover:text-blue-500">
+                                            <span>Upload a file</span>
+                                        </label>
+                                    </div>
+                                    <p class="text-xs text-gray-500">PDF, PNG, JPG up to 20MB</p>
+                                    <p id="fileName" class="text-xs font-bold text-green-600 mt-2 truncate max-w-[200px] mx-auto"></p>
+                                </div>
+                                <input id="fileInput" type="file" class="sr-only" accept="image/*,application/pdf" onchange="handleFile(this, 'fileBase64', 'fileName')">
+                                <input type="hidden" id="fileBase64">
+                            </div>
+                        </div>
+
+                        <!-- Cover for Update -->
+                        <div id="fieldCover" class="hidden">
+                             <label class="block text-xs font-bold text-slate-500 uppercase mb-1.5">Cover Image</label>
+                             <div class="flex items-center gap-4">
+                                 <div class="w-16 h-16 bg-gray-100 rounded-lg overflow-hidden border border-gray-200">
+                                     <img id="coverPreview" class="w-full h-full object-cover opacity-50">
+                                 </div>
+                                 <label class="cursor-pointer px-4 py-2 bg-white border border-gray-300 rounded-lg text-xs font-bold text-gray-700 hover:bg-gray-50 shadow-sm">
+                                     Change Cover
+                                     <input type="file" class="hidden" accept="image/*" onchange="handleFile(this, 'coverBase64', null, 'coverPreview')">
+                                 </label>
+                             </div>
+                             <input type="hidden" id="coverBase64">
+                        </div>
+
+                    </form>
+                    
+                    <!-- Footer -->
+                    <div class="bg-gray-50/50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6 border-t border-gray-100/50">
+                        <button type="button" onclick="saveContent()" class="inline-flex w-full justify-center rounded-xl bg-mama-blue px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-800 sm:ml-3 sm:w-auto transition">Save Changes</button>
+                        <button type="button" onclick="closeModal('editorModal')" class="mt-3 inline-flex w-full justify-center rounded-xl bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto transition">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Viewer Modal -->
+    <div id="viewerModal" class="fixed inset-0 z-[120] hidden" role="dialog" aria-modal="true">
+        <div class="fixed inset-0 bg-black/80 backdrop-blur-sm transition-opacity" onclick="closeModal('viewerModal')"></div>
+        <div class="fixed inset-0 z-10 overflow-y-auto">
+            <div class="flex min-h-full items-center justify-center p-4">
+                <div class="relative transform overflow-hidden rounded-2xl glass-modal shadow-2xl transition-all w-full max-w-5xl h-[85vh] flex flex-col">
+                    <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100/50 bg-white/80 backdrop-blur z-20">
+                        <h3 id="viewTitle" class="text-lg font-bold text-mama-blue truncate pr-4">Title</h3>
+                        <div class="flex items-center gap-2">
+                            <a id="viewDownload" href="#" download class="hidden px-3 py-1.5 bg-green-50 text-green-700 text-xs font-bold rounded-lg hover:bg-green-100 transition"><i class="fas fa-download mr-1"></i> Save</a>
+                            <button onclick="closeModal('viewerModal')" class="w-8 h-8 rounded-full bg-gray-50 text-gray-400 hover:bg-red-50 hover:text-red-500 transition flex items-center justify-center"><i class="fas fa-times"></i></button>
+                        </div>
+                    </div>
+                    <div id="viewBody" class="flex-1 overflow-y-auto bg-slate-50/50 p-0 relative">
+                        <!-- Content Injected -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Passcode Settings Modal -->
+    <div id="settingsModal" class="fixed inset-0 z-[130] hidden">
+        <div class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm"></div>
+        <div class="fixed inset-0 z-10 flex items-center justify-center p-4">
+            <div class="bg-white rounded-2xl shadow-xl w-full max-w-md animate-slide-up glass-modal">
+                <div class="p-6 border-b border-gray-100/50">
+                    <h3 class="text-lg font-bold text-slate-800">Security Settings</h3>
+                    <p class="text-xs text-gray-400">Manage access passcodes</p>
+                </div>
+                <div class="p-6 space-y-4">
+                    <div>
+                        <label class="text-xs font-bold text-mama-orange uppercase">Admin Passcode</label>
+                        <input type="text" id="setAdminPass" class="w-full mt-1 border-gray-200 bg-orange-50/50 text-orange-800 font-mono text-sm rounded-lg px-3 py-2 border focus:ring-mama-orange focus:bg-white">
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-xs font-bold text-gray-500 uppercase">User Passcodes (RH1-5)</label>
+                        <div id="userPassList" class="space-y-2 max-h-48 overflow-y-auto custom-scrollbar pr-1"></div>
+                    </div>
+                </div>
+                <div class="p-4 bg-gray-50/50 rounded-b-2xl flex justify-end gap-2">
+                    <button onclick="closeModal('settingsModal')" class="px-4 py-2 text-sm text-gray-600 hover:text-gray-900">Close</button>
+                    <button onclick="saveSettings()" class="px-4 py-2 bg-slate-800 text-white text-sm font-bold rounded-lg hover:bg-black shadow-lg">Save Changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, collection, addDoc, updateDoc, deleteDoc, setDoc, doc, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+        // --- ENVIRONMENT CONFIG ---
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'mama-hub-v5';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+        // --- STATE MANAGEMENT ---
+        const state = {
+            db: null,
+            content: [],
+            settings: null,
+            user: null, // { role: 'admin'|'user', label: 'Admin'|'RH1' }
+            view: { category: 'Home', subCategory: 'Call' }
+        };
+
+        const defaultSettings = {
+            adminPass: 'admin2026',
+            users: Array.from({length: 5}, (_, i) => ({ id: `u${i+1}`, code: `rh${i+1}mama`, label: `RH${i+1}` }))
+        };
+
+        // --- INITIALIZATION ---
+        async function init() {
+            if (!firebaseConfig) {
+                console.warn("No Firebase Config. Using Offline Mode.");
+                mockDataLoad();
+                return;
+            }
+
+            try {
+                const app = initializeApp(firebaseConfig);
+                const auth = getAuth(app);
+                if (initialAuthToken) await signInWithCustomToken(auth, initialAuthToken);
+                else await signInAnonymously(auth);
+                
+                state.db = getFirestore(app);
+                
+                // Listen to Settings
+                const settingsRef = doc(state.db, `artifacts/${appId}/public/data`, 'mama_settings_v5');
+                onSnapshot(settingsRef, (snap) => {
+                    if (snap.exists()) state.settings = snap.data();
+                    else setDoc(settingsRef, defaultSettings);
+                });
+
+                // Listen to Content
+                const contentQuery = query(collection(state.db, `artifacts/${appId}/public/data/mama_content_v5`), orderBy("createdAt", "desc"));
+                onSnapshot(contentQuery, (snap) => {
+                    state.content = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+                    if (state.user) render(); // Re-render if logged in
+                    document.getElementById('loadingState').classList.add('hidden');
+                    document.getElementById('loginState').classList.remove('hidden');
+                });
+
+            } catch (err) {
+                console.error("Init Error:", err);
+                mockDataLoad();
+            }
+        }
+
+        function mockDataLoad() {
+            state.settings = defaultSettings;
+            state.content = []; 
+            document.getElementById('loadingState').classList.add('hidden');
+            document.getElementById('loginState').classList.remove('hidden');
+        }
+
+        // --- AUTHENTICATION ---
+        window.attemptLogin = () => {
+            const input = document.getElementById('passcodeInput').value.trim();
+            const err = document.getElementById('loginError');
+            
+            if (!state.settings) { err.innerText = "Initializing..."; return; }
+
+            // Admin Check
+            if (input === state.settings.adminPass) {
+                loginSuccess({ role: 'admin', label: 'Admin' });
+                return;
+            }
+
+            // User Check
+            const user = state.settings.users.find(u => u.code === input);
+            if (user) {
+                loginSuccess({ role: 'user', label: user.label });
+                return;
+            }
+
+            err.innerText = "Invalid Passcode";
+            document.getElementById('passcodeInput').classList.add('animate-shake');
+            setTimeout(() => document.getElementById('passcodeInput').classList.remove('animate-shake'), 500);
+        };
+
+        function loginSuccess(user) {
+            state.user = user;
+            document.getElementById('userNameDisplay').innerText = user.label;
+            document.getElementById('userNameDisplay').className = user.role === 'admin' ? "text-xs font-bold text-mama-orange" : "text-xs font-bold text-mama-blue";
+            
+            // Toggle Admin UI
+            if (user.role === 'admin') document.getElementById('adminToolbar').classList.remove('hidden');
+            
+            // Transition
+            document.getElementById('authOverlay').classList.add('opacity-0', 'pointer-events-none');
+            document.getElementById('mainApp').classList.remove('hidden');
+            render();
+        }
+
+        // --- RENDERING CORE ---
+        window.selectCategory = (cat) => { state.view.category = cat; render(); };
+        window.selectSubCategory = (sub) => { state.view.subCategory = sub; render(); };
+
+        function render() {
+            renderNav();
+            const grid = document.getElementById('contentGrid');
+            grid.innerHTML = '';
+            
+            const categoryContent = state.content.filter(i => i.category === state.view.category);
+
+            // SPECIAL VIEW: HOME
+            if (state.view.category === 'Home') {
+                renderHome(grid, categoryContent);
+                return;
+            }
+
+            // FILTER SUB-CATEGORY (Script Only)
+            let filtered = categoryContent;
+            if (state.view.category === 'Script') {
+                filtered = filtered.filter(i => i.subCategory === state.view.subCategory);
+            }
+
+            // EMPTY STATE
+            if (filtered.length === 0) {
+                grid.innerHTML = `
+                    <div class="flex flex-col items-center justify-center h-full min-h-[400px] text-gray-300">
+                        <i class="fas fa-folder-open text-6xl mb-4"></i>
+                        <p class="text-sm font-medium">No content available</p>
+                    </div>`;
+                return;
+            }
+
+            // GRID LAYOUTS
+            const container = document.createElement('div');
+            container.className = state.view.category === 'MAMA' 
+                ? "flex flex-wrap justify-center gap-8 py-8 animate-fade-in" 
+                : "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-fade-in";
+            
+            filtered.forEach(item => container.appendChild(createCard(item)));
+            grid.appendChild(container);
+        }
+
+        // --- HOME SCREEN LOGIC (Requested Update) ---
+        function renderHome(container, banners) {
+            container.className = "flex flex-col h-full";
+            
+            const hasBanners = banners.length > 0;
+            // UPDATE: User label is always Orange (#f68a1f) for both Admin and Users
+            const welcomeColor = 'text-mama-orange';
+            
+            // 1. Welcome Section
+            const welcomeDiv = document.createElement('div');
+            if (!hasBanners) {
+                // Large Full Screen Welcome
+                welcomeDiv.className = "flex-1 flex flex-col items-center justify-center text-center animate-fade-in min-h-[60vh]";
+                welcomeDiv.innerHTML = `
+                    <div class="space-y-4">
+                         <div class="inline-block p-5 rounded-full glass-card mb-6 animate-bounce">
+                            <i class="fas fa-hand-sparkles text-5xl text-mama-orange"></i>
+                         </div>
+                         <h1 class="text-5xl md:text-7xl font-bold text-slate-800 tracking-tight drop-shadow-sm">
+                            Welcome!
+                         </h1>
+                         <p class="text-2xl md:text-4xl font-light text-slate-500">
+                            <span class="${welcomeColor} font-bold">${state.user.label}</span> to MAMA System
+                         </p>
+                    </div>
+                `;
+            } else {
+                // Smaller Header above banners (Single Line)
+                welcomeDiv.className = "py-8 text-center animate-fade-in";
+                welcomeDiv.innerHTML = `
+                    <h2 class="text-2xl md:text-3xl font-bold text-slate-700 flex items-center justify-center gap-3">
+                        Welcome! <span class="${welcomeColor}">${state.user.label}</span> <span class="text-gray-400 font-light">to MAMA System</span>
+                    </h2>
+                `;
+            }
+            container.appendChild(welcomeDiv);
+
+            // 2. Banner Grid (If exists)
+            if (hasBanners) {
+                const bannerGrid = document.createElement('div');
+                bannerGrid.className = "grid grid-cols-1 md:grid-cols-2 gap-6 pb-12 animate-slide-up";
+                banners.forEach(b => {
+                    const wrap = document.createElement('div');
+                    wrap.className = "relative rounded-2xl overflow-hidden shadow-lg border-4 border-white aspect-video group bg-gray-100 hover:shadow-2xl transition-all duration-500";
+                    wrap.innerHTML = `
+                        <img src="${b.attachment}" class="w-full h-full object-cover transition duration-700 group-hover:scale-105">
+                        ${state.user.role === 'admin' ? `<button onclick="deleteItem('${b.id}')" class="absolute top-2 right-2 bg-white text-red-500 w-8 h-8 rounded-full shadow hover:bg-red-500 hover:text-white transition flex items-center justify-center"><i class="fas fa-trash"></i></button>` : ''}
+                    `;
+                    bannerGrid.appendChild(wrap);
+                });
+                container.appendChild(bannerGrid);
+            }
+        }
+
+        // --- COMPONENT FACTORY ---
+        function createCard(item) {
+            const card = document.createElement('div');
+            const isHold = item.status === 'hold';
+            
+            // Actions
+            const actions = state.user.role === 'admin' ? `
+                <div class="absolute top-2 right-2 z-20 flex gap-1 opacity-0 group-hover:opacity-100 transition-all transform translate-y-1 group-hover:translate-y-0">
+                    <button onclick="openEditor('${item.id}')" class="w-8 h-8 rounded-full bg-white text-orange-500 shadow-md hover:bg-orange-500 hover:text-white flex items-center justify-center"><i class="fas fa-pen text-xs"></i></button>
+                    <button onclick="deleteItem('${item.id}')" class="w-8 h-8 rounded-full bg-white text-red-500 shadow-md hover:bg-red-500 hover:text-white flex items-center justify-center"><i class="fas fa-trash text-xs"></i></button>
+                </div>` : '';
+
+            // Hold Overlay
+            const holdOverlay = isHold ? `
+                <div class="absolute inset-0 z-10 bg-white/60 backdrop-blur-[2px] flex items-center justify-center rounded-2xl">
+                    <span class="px-3 py-1 bg-red-100 text-red-600 text-xs font-bold rounded-full border border-red-200">SUSPENDED</span>
+                </div>` : '';
+
+            // 1. MAMA BOOK
+            if (item.category === 'MAMA') {
+                card.className = "relative w-44 h-64 md:w-52 md:h-72 group cursor-pointer perspective-1000";
+                card.innerHTML = `
+                    ${actions} ${holdOverlay}
+                    <div class="absolute inset-0 bg-mama-blue rounded-r-xl rounded-l-sm shadow-xl mama-book overflow-hidden transition-transform duration-300 group-hover:-translate-y-3 group-hover:rotate-y-[-5deg] group-hover:shadow-2xl border-l border-white/10">
+                        <div class="h-full w-full bg-cover bg-center relative" style="background-image: url('${item.attachment || ''}');">
+                            <div class="absolute left-0 top-0 bottom-0 w-6 book-spine z-10"></div>
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/10 flex flex-col justify-end p-4">
+                                <h4 class="text-white font-bold text-lg leading-tight shadow-sm border-b-2 border-mama-orange inline-block pb-1">${item.title}</h4>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } 
+            // 2. UPDATE CARD
+            else if (item.category === 'Update') {
+                card.className = "group relative glass-card rounded-2xl transition-all duration-300 overflow-hidden cursor-pointer hover-lift";
+                card.innerHTML = `
+                    ${actions} ${holdOverlay}
+                    <div class="h-48 overflow-hidden relative bg-gray-200">
+                        <img src="${item.cover || 'https://placehold.co/600x400'}" class="w-full h-full object-cover transition duration-700 group-hover:scale-105">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
+                        <h3 class="absolute bottom-3 left-4 right-4 text-white font-bold text-lg leading-tight line-clamp-2 drop-shadow-md group-hover:text-mama-orange transition">${item.title}</h3>
+                    </div>
+                    <div class="p-4">
+                        <p class="text-sm text-gray-600 line-clamp-2 mb-3 font-light">${item.content || ''}</p>
+                        <div class="flex justify-between items-center text-xs text-gray-400 border-t border-gray-200/50 pt-3">
+                            <span>${item.other || 'News Update'}</span>
+                            <span class="text-mama-orange font-bold group-hover:translate-x-1 transition">Read <i class="fas fa-arrow-right"></i></span>
+                        </div>
+                    </div>
+                `;
+            }
+            // 3. SYSTEM CARD
+            else if (item.category === 'System') {
+                card.className = "group relative glass-card rounded-2xl transition-all p-4 cursor-pointer hover-lift";
+                card.innerHTML = `
+                    ${actions} ${holdOverlay}
+                    <div class="aspect-video bg-gray-50 rounded-xl mb-3 overflow-hidden relative border border-gray-100 shadow-inner">
+                        <img src="${item.attachment || 'https://placehold.co/600x400?text=System'}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                        <div class="absolute bottom-2 right-2 w-8 h-8 bg-white/90 backdrop-blur rounded-full flex items-center justify-center text-mama-blue shadow-md"><i class="fas fa-external-link-alt text-xs"></i></div>
+                    </div>
+                    <h4 class="font-bold text-slate-800 line-clamp-1 group-hover:text-mama-blue transition">${item.title}</h4>
+                    <p class="text-xs text-blue-400 truncate mt-1 opacity-80">${item.url}</p>
+                `;
+            }
+            // 4. SCRIPT & ONEPAGE
+            else {
+                const icon = item.category === 'OnePage' ? 'fa-file-invoice text-red-500' : 'fa-quote-right text-blue-300';
+                card.className = "group relative glass-card rounded-2xl transition-all p-6 cursor-pointer hover-lift";
+                card.innerHTML = `
+                    ${actions} ${holdOverlay}
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="p-2.5 rounded-xl bg-slate-50 text-slate-400 group-hover:bg-blue-50 group-hover:text-mama-blue transition shadow-inner">
+                            <i class="fas ${item.category === 'OnePage' ? 'fa-image' : 'fa-align-left'}"></i>
+                        </div>
+                        <i class="fas ${icon} text-2xl opacity-20 group-hover:scale-110 transition"></i>
+                    </div>
+                    <h4 class="font-bold text-lg text-slate-800 line-clamp-2 mb-2 group-hover:text-mama-blue transition">${item.title}</h4>
+                    ${item.category === 'OnePage' && item.attachment 
+                        ? `<div class="mt-2 h-32 rounded-lg bg-gray-100 overflow-hidden border border-gray-100"><img src="${item.attachment}" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition"></div>` 
+                        : `<p class="text-sm text-slate-500 line-clamp-3 leading-relaxed font-light">${item.content || ''}</p>`}
+                `;
+            }
+
+            card.onclick = (e) => {
+                if(e.target.closest('button')) return;
+                if (isHold && state.user.role !== 'admin') {
+                    alert(item.holdMsg || "This content is temporarily suspended.");
+                } else {
+                    openViewer(item);
+                }
+            };
+
+            return card;
+        }
+
+        function renderNav() {
+            // Main Categories
+            document.querySelectorAll('#categoryNav button').forEach(btn => {
+                btn.className = "flex flex-col md:flex-row items-center justify-center py-2.5 rounded-xl text-gray-500 hover:bg-white/50 transition-all duration-200";
+            });
+            const activeBtn = document.getElementById(`cat_${state.view.category}`);
+            if (activeBtn) activeBtn.className = "flex flex-col md:flex-row items-center justify-center py-2.5 rounded-xl nav-btn-active transition-all duration-200";
+
+            // Sub Categories (Script)
+            const subNav = document.getElementById('subFilterNav');
+            if (state.view.category === 'Script') {
+                subNav.classList.remove('hidden');
+                subNav.innerHTML = ['Call', 'Counter', 'Outbound', 'Objection'].map(sub => `
+                    <button onclick="selectSubCategory('${sub}')" class="px-5 py-1.5 rounded-full text-sm font-medium border transition-colors shadow-sm ${state.view.subCategory === sub ? 'bg-mama-blue text-white border-mama-blue shadow-md' : 'bg-white/80 text-gray-600 border-gray-200 hover:border-mama-blue hover:text-mama-blue'}">
+                        ${sub}
+                    </button>
+                `).join('');
+            } else {
+                subNav.classList.add('hidden');
+            }
+        }
+
+        // --- VIEWER MODAL ---
+        window.openViewer = (item) => {
+            document.getElementById('viewTitle').innerText = item.title;
+            const body = document.getElementById('viewBody');
+            const dlBtn = document.getElementById('viewDownload');
+            
+            body.innerHTML = '';
+            dlBtn.classList.add('hidden');
+
+            // Logic for Display
+            if (['MAMA', 'OnePage', 'Update'].includes(item.category)) {
+                if (item.attachment) {
+                    dlBtn.classList.remove('hidden');
+                    dlBtn.href = item.attachment;
+                    if (item.attachment.includes('application/pdf')) {
+                        body.innerHTML = `<iframe src="${item.attachment}" class="w-full h-full border-0 rounded-b-xl"></iframe>`;
+                    } else {
+                        body.innerHTML = `<div class="flex items-center justify-center h-full p-4"><img src="${item.attachment}" class="max-w-full max-h-full rounded shadow-lg"></div>`;
+                    }
+                } else if (item.category === 'Update') {
+                    // Update Text View
+                     body.innerHTML = `
+                        <div class="max-w-3xl mx-auto py-8 px-6">
+                            <div class="rounded-xl overflow-hidden shadow-lg mb-8 bg-gray-100 aspect-video relative">
+                                <img src="${item.cover || ''}" class="w-full h-full object-cover">
+                                <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                                <h2 class="absolute bottom-4 left-6 right-6 text-2xl font-bold text-white shadow-black drop-shadow-md">${item.title}</h2>
+                            </div>
+                            <div class="prose prose-blue max-w-none text-gray-700 leading-relaxed whitespace-pre-wrap font-light text-lg">${item.content || ''}</div>
+                            <div class="mt-8 text-right text-xs text-gray-400 border-t border-gray-200 pt-4">${item.other || ''}</div>
+                        </div>`;
+                }
+            } else if (item.category === 'System') {
+                 body.innerHTML = `
+                    <div class="flex flex-col items-center justify-center h-full text-center p-8 bg-slate-50/50">
+                        <div class="w-24 h-24 bg-white rounded-full flex items-center justify-center shadow-lg mb-6 text-mama-orange animate-bounce">
+                            <i class="fas fa-rocket text-4xl"></i>
+                        </div>
+                        <h2 class="text-3xl font-bold text-slate-800 mb-2">Launching External System</h2>
+                        <p class="text-slate-500 mb-8 max-w-md">You are navigating to an external tool. Please ensure you are logged into the respective system.</p>
+                        <a href="${item.url}" target="_blank" class="px-8 py-3 bg-mama-blue text-white rounded-full font-bold shadow-lg hover:bg-blue-800 transition transform hover:scale-105 flex items-center">
+                            Open System <i class="fas fa-external-link-alt ml-2"></i>
+                        </a>
+                        ${item.attachment ? `<div class="mt-8 p-2 bg-white rounded-lg shadow-sm border max-w-lg"><img src="${item.attachment}" class="rounded"></div>` : ''}
+                    </div>`;
+            } else { // Script
+                 body.innerHTML = `
+                    <div class="max-w-3xl mx-auto py-10 px-8 bg-white min-h-full shadow-sm">
+                        <i class="fas fa-quote-left text-4xl text-blue-100 mb-4 block"></i>
+                        <h2 class="text-2xl font-bold text-mama-blue mb-6 pb-4 border-b border-gray-100">${item.title}</h2>
+                        <div class="text-lg text-slate-700 leading-loose whitespace-pre-wrap font-light">${item.content}</div>
+                    </div>`;
+            }
+
+            document.getElementById('viewerModal').classList.remove('hidden');
+        };
+
+        // --- ADMIN EDITOR ---
+        window.openEditor = (id = null) => {
+            const form = document.getElementById('editorForm');
+            form.reset();
+            document.getElementById('editId').value = id || '';
+            document.getElementById('fileBase64').value = '';
+            document.getElementById('coverBase64').value = '';
+            document.getElementById('fileName').innerText = '';
+            document.getElementById('coverPreview').src = '';
+            
+            // Toggle Logic
+            window.updateFormFields();
+
+            if (id) {
+                const item = state.content.find(i => i.id === id);
+                if (item) {
+                    document.getElementById('editCategory').value = item.category;
+                    window.updateFormFields();
+                    
+                    document.getElementById('editTitle').value = item.title;
+                    if(item.subCategory) document.querySelector(`input[name="subCat"][value="${item.subCategory}"]`).checked = true;
+                    if(item.content) document.getElementById('editContent').value = item.content;
+                    if(item.url) document.getElementById('editUrl').value = item.url;
+                    if(item.other) document.getElementById('editOther').value = item.other;
+                    document.getElementById('editHold').checked = item.status === 'hold';
+                    if(item.holdMsg) document.getElementById('editHoldMsg').value = item.holdMsg;
+                }
+            }
+
+            document.getElementById('editorModal').classList.remove('hidden');
+        };
+
+        window.updateFormFields = () => {
+            const cat = document.getElementById('editCategory').value;
+            const show = (id) => document.getElementById(id).classList.remove('hidden');
+            const hide = (id) => document.getElementById(id).classList.add('hidden');
+            const els = ['fieldSubCat', 'fieldContent', 'fieldExtra', 'fieldUpload', 'fieldCover'];
+            
+            els.forEach(hide);
+            document.getElementById('lblUpload').innerText = "Attachment (Max 20MB)";
+
+            if (cat === 'Script') {
+                show('fieldSubCat'); show('fieldContent');
+            } else if (cat === 'Update') {
+                show('fieldContent'); show('fieldExtra'); show('fieldUpload'); show('fieldCover');
+            } else if (cat === 'System') {
+                show('fieldExtra'); show('fieldUpload');
+                document.getElementById('lblUpload').innerText = "Screenshot Preview";
+            } else if (['MAMA', 'OnePage', 'Home'].includes(cat)) {
+                show('fieldUpload');
+            }
+        };
+
+        window.saveContent = async () => {
+            const id = document.getElementById('editId').value;
+            const cat = document.getElementById('editCategory').value;
+            const data = {
+                category: cat,
+                title: document.getElementById('editTitle').value,
+                status: document.getElementById('editHold').checked ? 'hold' : 'active',
+                holdMsg: document.getElementById('editHoldMsg').value,
+                updatedAt: new Date().toISOString()
+            };
+
+            if (!id) data.createdAt = new Date().toISOString();
+
+            // Specifics
+            if (cat === 'Script') {
+                data.subCategory = document.querySelector('input[name="subCat"]:checked')?.value || 'Call';
+                data.content = document.getElementById('editContent').value;
+            } else if (cat === 'Update') {
+                data.content = document.getElementById('editContent').value;
+                data.other = document.getElementById('editOther').value;
+                const cv = document.getElementById('coverBase64').value;
+                if(cv) data.cover = cv;
+            } else if (cat === 'System') {
+                data.url = document.getElementById('editUrl').value;
+            }
+
+            // Attachment
+            const att = document.getElementById('fileBase64').value;
+            if (att) data.attachment = att;
+
+            try {
+                const col = collection(state.db, `artifacts/${appId}/public/data/mama_content_v5`);
+                if (id) await updateDoc(doc(col, id), data);
+                else await addDoc(col, data);
+                closeModal('editorModal');
+            } catch (e) {
+                console.error(e);
+                alert("Save Failed: " + (e.message.includes("size") ? "File too large for Firestore" : e.message));
+            }
+        };
+
+        window.deleteItem = async (id) => {
+            if(!confirm("Are you sure you want to delete this item?")) return;
+            try {
+                await deleteDoc(doc(state.db, `artifacts/${appId}/public/data/mama_content_v5`, id));
+            } catch(e) { alert("Delete failed"); }
+        };
+
+        // --- UTILS ---
+        window.handleFile = (input, targetId, nameId = null, previewId = null) => {
+            const file = input.files[0];
+            if (!file) return;
+            
+            // 20MB Check
+            if (file.size > 20 * 1024 * 1024) { alert("File exceeds 20MB limit"); return; }
+            
+            if (nameId) document.getElementById(nameId).innerText = file.name;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                document.getElementById(targetId).value = e.target.result;
+                if (previewId) document.getElementById(previewId).src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        };
+
+        window.closeModal = (id) => document.getElementById(id).classList.add('hidden');
+        
+        // Settings Logic (Same as V3 but connected to new UI)
+        window.openSettingsModal = () => {
+            const list = document.getElementById('userPassList');
+            document.getElementById('setAdminPass').value = state.settings.adminPass;
+            list.innerHTML = state.settings.users.map(u => `
+                <div class="flex items-center gap-2 bg-gray-50 p-2 rounded">
+                    <span class="text-xs font-bold text-gray-500 w-8">${u.label}</span>
+                    <input type="text" id="pass_${u.id}" value="${u.code}" class="flex-1 text-sm border-gray-200 rounded px-2 py-1 font-mono">
+                </div>`).join('');
+            document.getElementById('settingsModal').classList.remove('hidden');
+        };
+
+        window.saveSettings = async () => {
+             const newAdmin = document.getElementById('setAdminPass').value;
+             const newUsers = state.settings.users.map(u => ({
+                 ...u,
+                 code: document.getElementById(`pass_${u.id}`).value
+             }));
+             
+             await updateDoc(doc(state.db, `artifacts/${appId}/public/data`, 'mama_settings_v5'), {
+                 adminPass: newAdmin, users: newUsers
+             });
+             closeModal('settingsModal');
+             alert("Settings Saved!");
+        };
+
+        // Start
+        init();
+
+    </script>
+</body>
+</html>
+
