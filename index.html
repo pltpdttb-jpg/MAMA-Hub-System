@@ -3,175 +3,1905 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MAMA Conversation Starter</title>
+    <title>2026 MAMA Advisory Framework (Firebase Version)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            margin: 0;
-            padding: 0;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            color: white;
-        }
+        body { font-family: 'Sarabun', sans-serif; }
+        .ttb-blue { color: #003366; }
+        .ttb-bg-blue { background-color: #003366; }
+        .ttb-orange { color: #f05a22; }
+        .ttb-bg-orange { background-color: #f05a22; }
+        .active-level { background-color: #003366 !important; color: white !important; }
+        .active-category { background-color: #f05a22 !important; color: white !important; border: none !important; }
+        .active-sub { background-color: #e2e8f0; border-left: 4px solid #f05a22; font-weight: bold; color: #003366; }
         
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 40px 20px;
-            text-align: center;
+        /* Loading Animation */
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #f05a22;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
         }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         
-        .logo {
-            font-size: 48px;
-            margin-bottom: 20px;
-        }
+        .fade-out { animation: fadeOut 0.5s forwards; }
+        @keyframes fadeOut { to { opacity: 0; visibility: hidden; } }
         
-        h1 {
-            font-size: 36px;
-            margin-bottom: 20px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-        }
+        .fade-in { animation: fadeIn 0.5s forwards; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         
-        .subtitle {
-            font-size: 18px;
-            opacity: 0.9;
-            margin-bottom: 40px;
-        }
+        .system-card:hover img { transform: scale(1.05); }
+        .content-card { transition: all 0.2s; }
+        .content-card:hover { transform: translateY(-3px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
         
-        .app-container {
-            background: rgba(255,255,255,0.1);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 30px;
-            margin-bottom: 30px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-        }
-        
-        .btn {
+        /* Welcome Text Animation */
+        .word-animation span {
+            opacity: 0;
             display: inline-block;
-            padding: 15px 30px;
-            background: white;
-            color: #667eea;
-            text-decoration: none;
-            border-radius: 10px;
-            font-weight: bold;
-            margin: 10px;
-            transition: all 0.3s;
-            border: none;
+            animation: wordReveal 0.8s forwards;
+        }
+        .word-animation span:nth-child(1) { animation-delay: 0.2s; }
+        .word-animation span:nth-child(2) { animation-delay: 1.2s; }
+        .word-animation span:nth-child(3) { animation-delay: 2.2s; }
+        @keyframes wordReveal {
+            0% { opacity: 0; transform: translateY(20px); }
+            50% { opacity: 1; transform: translateY(-5px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* MAMA Icon Styles */
+        .mama-icon {
+            width: 140px;
+            height: 180px;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
             cursor: pointer;
-            font-size: 16px;
         }
-        
-        .btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        .mama-icon:hover { transform: translateY(-5px) scale(1.05); }
+        .mama-icon:before {
+            content: '';
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            right: 10px;
+            bottom: 40px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 8px;
         }
-        
-        .btn-primary {
-            background: #667eea;
+        .mama-icon-book {
+            position: absolute;
+            width: 100%;
+            height: calc(100% - 40px);
+            background: white;
+            border-radius: 8px 8px 4px 4px;
+            top: 0;
+            left: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+        .mama-icon-person {
+            width: 50px;
+            height: 50px;
+            background: #003366;
+            border-radius: 50%;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             color: white;
+            font-size: 24px;
+        }
+        .mama-icon-label {
+            position: absolute;
+            bottom: 10px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            font-weight: bold;
+            font-size: 16px;
+            color: white;
+            padding: 5px;
+            border-radius: 4px;
         }
         
-        .features {
+        /* Update Detail Styles */
+        .update-cover {
+            width: 100%;
+            max-height: 300px;
+            object-fit: cover;
+            border-radius: 12px;
+        }
+        .update-topic {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #003366;
+            line-height: 1.2;
+            margin: 20px 0;
+        }
+        .update-detail {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .update-other {
+            font-size: 0.9rem;
+            color: #666;
+            line-height: 1.6;
+            font-weight: 300;
+        }
+        
+        /* Banner Styles */
+        .banner-container {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 20px;
-            margin-top: 40px;
+            margin: 30px 0;
         }
-        
-        .feature {
-            background: rgba(255,255,255,0.05);
+        .banner-item {
+            height: 180px;
+            border-radius: 16px;
+            overflow: hidden;
+            position: relative;
+            background: linear-gradient(135deg, #003366, #0055aa);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .banner-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .banner-placeholder {
+            color: white;
+            text-align: center;
             padding: 20px;
-            border-radius: 10px;
         }
-        
-        .feature h3 {
-            margin-top: 0;
-        }
-        
-        .footer {
-            margin-top: 40px;
-            font-size: 14px;
+        .banner-placeholder i {
+            font-size: 48px;
+            margin-bottom: 15px;
             opacity: 0.7;
         }
         
-        /* Mobile responsive */
-        @media (max-width: 600px) {
-            .container {
-                padding: 20px 15px;
-            }
-            
-            h1 {
-                font-size: 28px;
-            }
-            
-            .app-container {
-                padding: 20px;
-            }
-            
-            .btn {
-                display: block;
-                margin: 10px 0;
-            }
+        /* Menu Grid Styles */
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+        .menu-card {
+            height: 120px;
+            border-radius: 16px;
+            background: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        .menu-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+        .menu-card i {
+            font-size: 40px;
+            margin-bottom: 15px;
+        }
+        .menu-card-label {
+            font-size: 18px;
+            font-weight: 700;
+            color: #003366;
+        }
+        .menu-card-count {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #f05a22;
+            color: white;
+            font-size: 12px;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
     </style>
 </head>
-<body>
-    <div class="container">
-        <div class="logo">🍜</div>
-        <h1>MAMA Conversation Starter</h1>
-        <p class="subtitle">ระบบแนะนำธีมการสนทนาสำหรับนักวางแผนการเงิน</p>
-        
-        <div class="app-container">
-            <h2>🚀 พร้อมใช้งานแล้ว!</h2>
-            <p>ระบบจะวิเคราะห์ข้อมูลลูกค้าและแนะนำธีมการสนทนาที่เหมาะสม พร้อมสคริปต์และคำถามแนะนํา</p>
+<body class="bg-gray-100 min-h-screen overflow-x-hidden">
+
+    <!-- 1. LOADING SCREEN -->
+    <div id="loginOverlay" class="fixed inset-0 bg-gradient-to-br from-blue-900 to-gray-900 z-[100] flex flex-col items-center justify-center text-white">
+        <div id="loadingState" class="flex flex-col items-center">
+            <div class="loader mb-4"></div>
+            <h2 class="text-xl font-bold tracking-widest animate-pulse">CONNECTING MAMA HUB...</h2>
+            <p id="statusMsg" class="mt-4 text-xs text-gray-400">กำลังเชื่อมต่อฐานข้อมูล Firebase และยืนยันตัวตน...</p>
+        </div>
+
+        <!-- Login State -->
+        <div id="loginState" class="hidden flex flex-col items-center w-full max-w-sm px-4">
+            <div class="mb-8 text-center">
+                <h1 class="text-4xl font-bold mb-2">MAMA <span class="text-orange-500">2026</span></h1>
+                <p class="text-gray-300 text-sm">Advisory Framework Portal</p>
+            </div>
             
-            <div style="margin: 30px 0;">
-                <a href="MAMA_Conversation_Starter.html" class="btn btn-primary">
-                    📱 เปิดแอปพลิเคชันหลัก
-                </a>
-                <button onclick="testSystem()" class="btn">
-                    🧪 ทดสอบระบบ
+            <div class="bg-white/10 backdrop-blur-md p-8 rounded-2xl shadow-2xl w-full border border-white/20">
+                <label class="block text-sm font-medium mb-2">Enter Passcode</label>
+                <input type="password" id="passcodeInput" 
+                    class="w-full bg-black/30 border border-gray-500 rounded-lg px-4 py-3 text-center text-xl tracking-[0.5em] focus:outline-none focus:border-orange-500 transition"
+                    placeholder="••••" maxlength="10">
+                
+                <button onclick="attemptLogin()" class="mt-6 w-full ttb-bg-orange hover:bg-orange-600 text-white font-bold py-3 rounded-lg shadow-lg transition transform active:scale-95">
+                    เข้าสู่ระบบ
+                </button>
+                <p id="loginError" class="text-red-400 text-xs text-center mt-3 h-4"></p>
+            </div>
+            <p class="mt-8 text-xs text-gray-500">Authorized Personnel Only</p>
+        </div>
+    </div>
+
+    <!-- 2. MAIN APPLICATION -->
+    <div id="mainApp" class="hidden">
+        <!-- Navbar -->
+        <nav class="ttb-bg-blue text-white shadow-lg sticky top-0 z-50">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex items-center justify-between h-16">
+                    <div class="flex items-center">
+                        <button onclick="goToHome()" class="font-bold text-xl tracking-wide hover:text-orange-300 transition">MAMA <span class="text-orange-400">Framework</span></button>
+                        <span id="navSubtitle" class="ml-4 text-xs md:text-sm text-gray-300 hidden md:block border-l border-gray-500 pl-3">สื่อสารอย่างมีทิศทาง | วิเคราะห์อย่างเชี่ยวชาญ | นำเสนออย่างทรงคุณค่า</span>
+                    </div>
+                    <div class="flex items-center space-x-3">
+                        <div id="dbStatus" class="w-3 h-3 rounded-full bg-gray-400" title="Database Status"></div>
+                        <div id="userRoleBadge" class="px-3 py-1 rounded-full text-xs font-bold text-white bg-blue-800">User Mode</div>
+                        <button onclick="window.location.reload()" class="text-gray-300 hover:text-white ml-2"><i class="fas fa-sign-out-alt"></i></button>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- HOME SCREEN -->
+        <div id="homeScreen" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
+            <!-- Welcome Animation -->
+            <div id="welcomeAnimation" class="text-center py-8">
+                <h1 id="welcomeText" class="text-4xl md:text-5xl font-bold word-animation">
+                    <span>Welcome</span> <span>To MAMA</span> <span>Hub System</span>
+                </h1>
+            </div>
+
+            <!-- Banner Area -->
+            <div class="banner-container">
+                <div id="banner1" class="banner-item">
+                    <div class="banner-placeholder hidden" id="bannerPlaceholder1">
+                        <i class="fas fa-image"></i>
+                        <p>Banner 1 Placeholder</p>
+                        <p class="text-sm opacity-75">(Admin can upload image)</p>
+                    </div>
+                </div>
+                <div id="banner2" class="banner-item">
+                    <div class="banner-placeholder hidden" id="bannerPlaceholder2">
+                        <i class="fas fa-image"></i>
+                        <p>Banner 2 Placeholder</p>
+                        <p class="text-sm opacity-75">(Admin can upload image)</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Menu Grid -->
+            <div class="menu-grid">
+                <div onclick="selectMenu('mama')" class="menu-card">
+                    <i class="fas fa-book ttb-blue"></i>
+                    <div class="menu-card-label">MAMA</div>
+                    <div id="mamaCount" class="menu-card-count">2</div>
+                </div>
+                <div onclick="selectMenu('script')" class="menu-card">
+                    <i class="fas fa-pen-to-square ttb-blue"></i>
+                    <div class="menu-card-label">Script</div>
+                    <div id="scriptCount" class="menu-card-count">0</div>
+                </div>
+                <div onclick="selectMenu('onepage')" class="menu-card">
+                    <i class="fas fa-file-image ttb-blue"></i>
+                    <div class="menu-card-label">One Page</div>
+                    <div id="onepageCount" class="menu-card-count">0</div>
+                </div>
+                <div onclick="selectMenu('system')" class="menu-card">
+                    <i class="fas fa-laptop-code ttb-blue"></i>
+                    <div class="menu-card-label">System</div>
+                    <div id="systemCount" class="menu-card-count">0</div>
+                </div>
+                <div onclick="selectMenu('update')" class="menu-card">
+                    <i class="fas fa-newspaper ttb-blue"></i>
+                    <div class="menu-card-label">Update</div>
+                    <div id="updateCount" class="menu-card-count">0</div>
+                </div>
+            </div>
+
+            <!-- Credit Section -->
+            <div class="mt-12 pt-6 border-t border-gray-300 text-center text-gray-600 text-sm">
+                <p class="font-semibold ttb-blue mb-1">2026 MAMA Advisory Framework Portal</p>
+                <p>Powered by <span class="font-bold text-orange-600">PLT - PRU ACADEMY</span> <span class="font-bold text-blue-700">[ttb training team]</span></p>
+            </div>
+        </div>
+
+        <!-- CONTENT SCREENS (Hidden by default) -->
+        <!-- MAMA Screen -->
+        <div id="mamaScreen" class="hidden max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
+            <div class="flex justify-between items-center mb-6">
+                <h1 class="text-2xl font-bold ttb-blue flex items-center">
+                    <i class="fas fa-book mr-3"></i> MAMA Framework Documents
+                </h1>
+                <button onclick="goToHome()" class="text-gray-600 hover:text-blue-700 flex items-center">
+                    <i class="fas fa-arrow-left mr-2"></i> Back to Home
                 </button>
             </div>
             
-            <div id="testResult" style="display: none; padding: 15px; background: rgba(255,255,255,0.1); border-radius: 10px; margin-top: 20px;">
-                ✅ ระบบทำงานปกติ! สามารถใช้งานได้เลย
+            <!-- Level Selection for MAMA -->
+            <div class="grid grid-cols-3 gap-4 mb-8">
+                <button onclick="selectMamaLevel('L1')" id="mamaL1" class="py-3 px-4 rounded-lg text-center font-bold text-white ttb-bg-blue hover:bg-blue-800 transition">
+                    <div class="text-lg">MAMA #1</div>
+                    <div class="text-sm opacity-90">Foundation</div>
+                </button>
+                <button onclick="selectMamaLevel('L2')" id="mamaL2" class="py-3 px-4 rounded-lg text-center font-bold text-white bg-gray-600 hover:bg-gray-700 transition">
+                    <div class="text-lg">MAMA #2</div>
+                    <div class="text-sm opacity-90">Analyst</div>
+                </button>
+                <button onclick="selectMamaLevel('L3')" id="mamaL3" class="py-3 px-4 rounded-lg text-center font-bold text-white bg-gray-600 hover:bg-gray-700 transition">
+                    <div class="text-lg">MAMA #3</div>
+                    <div class="text-sm opacity-90">Consultant</div>
+                </button>
+            </div>
+
+            <!-- MAMA Icons -->
+            <div id="mamaContent" class="hidden">
+                <div class="flex flex-col md:flex-row justify-center items-center gap-12 py-12">
+                    <div onclick="openMamaPdf('mama1')" class="mama-icon" style="background: linear-gradient(135deg, #003366, #0055aa);">
+                        <div class="mama-icon-book">
+                            <div class="mama-icon-person">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div class="text-center px-4">
+                                <div class="font-bold text-blue-900 text-sm">MAMA Framework</div>
+                                <div class="text-xs text-gray-600 mt-1">Level 1</div>
+                            </div>
+                        </div>
+                        <div class="mama-icon-label" style="background: rgba(0, 51, 102, 0.9);">
+                            MAMA #1
+                        </div>
+                    </div>
+                    
+                    <div onclick="openMamaPdf('mama2')" class="mama-icon" style="background: linear-gradient(135deg, #f05a22, #ff7b47);">
+                        <div class="mama-icon-book">
+                            <div class="mama-icon-person" style="background: #f05a22;">
+                                <i class="fas fa-user-tie"></i>
+                            </div>
+                            <div class="text-center px-4">
+                                <div class="font-bold text-orange-900 text-sm">MAMA Framework</div>
+                                <div class="text-xs text-gray-600 mt-1">Level 2</div>
+                            </div>
+                        </div>
+                        <div class="mama-icon-label" style="background: rgba(240, 90, 34, 0.9);">
+                            MAMA #2
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="mamaPdfViewer" class="hidden mt-8">
+                    <div class="bg-white rounded-xl shadow-lg p-6">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 id="mamaPdfTitle" class="text-xl font-bold ttb-blue"></h3>
+                            <div>
+                                <button id="mamaDownloadBtn" class="ttb-bg-orange text-white px-4 py-2 rounded-lg hover:bg-orange-600 transition">
+                                    <i class="fas fa-download mr-2"></i> Download PDF
+                                </button>
+                                <button onclick="closeMamaPdf()" class="ml-2 text-gray-500 hover:text-gray-700">
+                                    <i class="fas fa-times text-xl"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div id="mamaPdfContainer" class="h-[600px] border rounded-lg overflow-hidden">
+                            <!-- PDF will be embedded here -->
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
-        
-        <div class="features">
-            <div class="feature">
-                <h3>🎯 วิเคราะห์อัตโนมัติ</h3>
-                <p>วิเคราะห์จากอายุ รายได้ สถานภาพ และสถานการณ์ของลูกค้า</p>
+
+        <!-- Script Screen -->
+        <div id="scriptScreen" class="hidden max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
+            <div class="flex justify-between items-center mb-6">
+                <h1 class="text-2xl font-bold ttb-blue flex items-center">
+                    <i class="fas fa-pen-to-square mr-3"></i> Script Library
+                </h1>
+                <div>
+                    <button onclick="goToHome()" class="text-gray-600 hover:text-blue-700 flex items-center mr-4">
+                        <i class="fas fa-arrow-left mr-2"></i> Back to Home
+                    </button>
+                    <div id="scriptAdminControls" class="hidden inline-block">
+                        <button onclick="openScriptAdminModal()" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg shadow flex items-center text-sm">
+                            <i class="fas fa-plus-circle mr-2"></i> Add Script
+                        </button>
+                    </div>
+                </div>
             </div>
-            <div class="feature">
-                <h3>💬 สคริปต์พร้อมใช้</h3>
-                <p>ให้สคริปต์การสนทนา 4 ขั้นตอน พร้อมคำถามเปิดประเด็น</p>
+
+            <!-- Script Sub-Category Tabs -->
+            <div class="grid grid-cols-4 gap-2 mb-6 p-2 bg-white rounded-xl shadow-sm">
+                <button onclick="selectScriptSubCategory('Call')" id="scriptSub_Call" class="sub-category-btn flex items-center justify-center py-2 px-3 rounded-lg text-sm font-semibold text-gray-600 hover:bg-blue-50 transition">Call</button>
+                <button onclick="selectScriptSubCategory('Counter')" id="scriptSub_Counter" class="sub-category-btn flex items-center justify-center py-2 px-3 rounded-lg text-sm font-semibold text-gray-600 hover:bg-blue-50 transition">Counter</button>
+                <button onclick="selectScriptSubCategory('Outbound')" id="scriptSub_Outbound" class="sub-category-btn flex items-center justify-center py-2 px-3 rounded-lg text-sm font-semibold text-gray-600 hover:bg-blue-50 transition">Outbound</button>
+                <button onclick="selectScriptSubCategory('Objection')" id="scriptSub_Objection" class="sub-category-btn flex items-center justify-center py-2 px-3 rounded-lg text-sm font-semibold text-gray-600 hover:bg-blue-50 transition">Objection</button>
             </div>
-            <div class="feature">
-                <h3>📊 ฐานข้อมูล MAMA 2.0</h3>
-                <p>ใช้ฐานข้อมูลผลิตภัณฑ์และธีมจาก ttb Bancassurance</p>
+
+            <!-- Script Content -->
+            <div id="scriptContentList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-20">
+                <!-- JS Generated Cards -->
             </div>
         </div>
-        
-        <div class="footer">
-            <p>ttb Bancassurance | MAMA 2.0 Foundation Builder © 2025</p>
-            <p>Version 1.0.0 | อัพเดทล่าสุด: ธันวาคม 2025</p>
+
+        <!-- One Page Screen -->
+        <div id="onepageScreen" class="hidden max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
+            <div class="flex justify-between items-center mb-6">
+                <h1 class="text-2xl font-bold ttb-blue flex items-center">
+                    <i class="fas fa-file-image mr-3"></i> One Page Documents
+                </h1>
+                <div>
+                    <button onclick="goToHome()" class="text-gray-600 hover:text-blue-700 flex items-center mr-4">
+                        <i class="fas fa-arrow-left mr-2"></i> Back to Home
+                    </button>
+                    <div id="onepageAdminControls" class="hidden inline-block">
+                        <button onclick="openOnepageAdminModal()" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg shadow flex items-center text-sm">
+                            <i class="fas fa-plus-circle mr-2"></i> Add One Page
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="onepageContentList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-20">
+                <!-- JS Generated Cards -->
+            </div>
+        </div>
+
+        <!-- System Screen -->
+        <div id="systemScreen" class="hidden max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
+            <div class="flex justify-between items-center mb-6">
+                <h1 class="text-2xl font-bold ttb-blue flex items-center">
+                    <i class="fas fa-laptop-code mr-3"></i> System Tools
+                </h1>
+                <div>
+                    <button onclick="goToHome()" class="text-gray-600 hover:text-blue-700 flex items-center mr-4">
+                        <i class="fas fa-arrow-left mr-2"></i> Back to Home
+                    </button>
+                    <div id="systemAdminControls" class="hidden inline-block">
+                        <button onclick="openSystemAdminModal()" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg shadow flex items-center text-sm">
+                            <i class="fas fa-plus-circle mr-2"></i> Add System
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="systemContentList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-20">
+                <!-- JS Generated Cards -->
+            </div>
+        </div>
+
+        <!-- Update Screen -->
+        <div id="updateScreen" class="hidden max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
+            <div class="flex justify-between items-center mb-6">
+                <h1 class="text-2xl font-bold ttb-blue flex items-center">
+                    <i class="fas fa-newspaper mr-3"></i> Latest Updates
+                </h1>
+                <div>
+                    <button onclick="goToHome()" class="text-gray-600 hover:text-blue-700 flex items-center mr-4">
+                        <i class="fas fa-arrow-left mr-2"></i> Back to Home
+                    </button>
+                    <div id="updateAdminControls" class="hidden inline-block">
+                        <button onclick="openUpdateAdminModal()" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg shadow flex items-center text-sm">
+                            <i class="fas fa-plus-circle mr-2"></i> Add Update
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Update List (Cover View) -->
+            <div id="updateListCover" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-20">
+                <!-- JS Generated Cards -->
+            </div>
+
+            <!-- Update Detail View -->
+            <div id="updateDetailView" class="hidden">
+                <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+                    <button onclick="backToUpdateList()" class="text-blue-600 hover:text-blue-800 mb-6 flex items-center">
+                        <i class="fas fa-arrow-left mr-2"></i> Back to Updates
+                    </button>
+                    
+                    <div class="flex flex-col md:flex-row gap-8">
+                        <!-- Cover Image -->
+                        <div class="md:w-1/3">
+                            <img id="updateDetailCover" src="" alt="Cover" class="update-cover rounded-lg shadow">
+                            <div class="mt-4 text-center">
+                                <button id="updateDownloadBtn" class="ttb-bg-blue text-white px-4 py-2 rounded-lg hover:bg-blue-800 transition">
+                                    <i class="fas fa-download mr-2"></i> Download Attachment
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Content -->
+                        <div class="md:w-2/3">
+                            <h2 id="updateDetailTopic" class="update-topic"></h2>
+                            <div id="updateDetailContent" class="update-detail"></div>
+                            <div id="updateDetailOther" class="update-other mt-8 pt-6 border-t border-gray-200"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
-    
-    <script>
-        function testSystem() {
-            const testResult = document.getElementById('testResult');
-            testResult.style.display = 'block';
-            testResult.innerHTML = '✅ ระบบทำงานปกติ!<br>👉 <a href="MAMA_Conversation_Starter.html" style="color: #fff; text-decoration: underline;">คลิกที่นี่เพื่อเปิดแอปพลิเคชัน</a>';
-        }
+
+    <!-- 3. MODALS -->
+    <!-- Admin Modal (Generic) -->
+    <div id="adminModal" class="fixed inset-0 bg-black/70 z-[120] hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div class="p-6 border-b border-gray-200 flex justify-between items-center sticky top-0 bg-white z-10">
+                <h3 id="adminModalTitle" class="text-xl font-bold ttb-blue">Manage Content</h3>
+                <button onclick="closeAdminModal()" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times text-xl"></i></button>
+            </div>
+            <form id="contentForm" class="p-6 space-y-4">
+                <input type="hidden" id="contentId">
+                <input type="hidden" id="contentType">
+                
+                <!-- MAMA Form Fields -->
+                <div id="mamaFormFields" class="hidden space-y-4">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">MAMA Level</label>
+                        <select id="mamaLevel" class="w-full border p-2 rounded">
+                            <option value="L1">MAMA #1 (Foundation)</option>
+                            <option value="L2">MAMA #2 (Analyst)</option>
+                            <option value="L3">MAMA #3 (Consultant)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Title</label>
+                        <input type="text" id="mamaTitle" class="w-full border p-2 rounded" placeholder="MAMA Document Title...">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Upload PDF File (Max 5MB)</label>
+                        <input type="file" id="mamaFile" class="w-full border p-2 rounded" accept="application/pdf" onchange="handleMamaFileSelect(this)">
+                        <input type="hidden" id="mamaBase64">
+                        <div id="mamaFilePreview" class="mt-2 text-xs text-green-600 truncate font-bold"></div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Status</label>
+                        <select id="mamaStatus" class="w-full border p-2 rounded">
+                            <option value="published">Published</option>
+                            <option value="hold">Hold (Not Published)</option>
+                        </select>
+                    </div>
+                    <div id="mamaHoldReasonField" class="hidden">
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Hold Reason (Error Message for Users)</label>
+                        <input type="text" id="mamaHoldReason" class="w-full border p-2 rounded" placeholder="This content is currently unavailable...">
+                    </div>
+                </div>
+
+                <!-- Script Form Fields -->
+                <div id="scriptFormFields" class="hidden space-y-4">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Script Type</label>
+                        <select id="scriptSubCategory" class="w-full border p-2 rounded">
+                            <option value="Call">Call</option>
+                            <option value="Counter">Counter</option>
+                            <option value="Outbound">Outbound</option>
+                            <option value="Objection">Objection</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Title</label>
+                        <input type="text" id="scriptTitle" class="w-full border p-2 rounded" placeholder="Script Title...">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Content</label>
+                        <textarea id="scriptContent" rows="8" class="w-full border p-2 rounded" placeholder="Script content..."></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Status</label>
+                        <select id="scriptStatus" class="w-full border p-2 rounded">
+                            <option value="published">Published</option>
+                            <option value="hold">Hold (Not Published)</option>
+                        </select>
+                    </div>
+                    <div id="scriptHoldReasonField" class="hidden">
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Hold Reason (Error Message for Users)</label>
+                        <input type="text" id="scriptHoldReason" class="w-full border p-2 rounded" placeholder="This script is currently unavailable...">
+                    </div>
+                </div>
+
+                <!-- One Page Form Fields -->
+                <div id="onepageFormFields" class="hidden space-y-4">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Title</label>
+                        <input type="text" id="onepageTitle" class="w-full border p-2 rounded" placeholder="One Page Title...">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Upload File (Image/PDF) - Max 5MB</label>
+                        <input type="file" id="onepageFile" class="w-full border p-2 rounded" accept="image/*,application/pdf" onchange="handleOnepageFileSelect(this)">
+                        <input type="hidden" id="onepageBase64">
+                        <div id="onepageFilePreview" class="mt-2 text-xs text-green-600 truncate font-bold"></div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Status</label>
+                        <select id="onepageStatus" class="w-full border p-2 rounded">
+                            <option value="published">Published</option>
+                            <option value="hold">Hold (Not Published)</option>
+                        </select>
+                    </div>
+                    <div id="onepageHoldReasonField" class="hidden">
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Hold Reason (Error Message for Users)</label>
+                        <input type="text" id="onepageHoldReason" class="w-full border p-2 rounded" placeholder="This one page is currently unavailable...">
+                    </div>
+                </div>
+
+                <!-- System Form Fields -->
+                <div id="systemFormFields" class="hidden space-y-4">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Title</label>
+                        <input type="text" id="systemTitle" class="w-full border p-2 rounded" placeholder="System Tool Name...">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">URL</label>
+                        <input type="url" id="systemUrl" class="w-full border p-2 rounded" placeholder="https://...">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Screenshot/Thumbnail (Optional)</label>
+                        <input type="file" id="systemFile" class="w-full border p-2 rounded" accept="image/*" onchange="handleSystemFileSelect(this)">
+                        <input type="hidden" id="systemBase64">
+                        <div id="systemFilePreview" class="mt-2 text-xs text-green-600 truncate font-bold"></div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Status</label>
+                        <select id="systemStatus" class="w-full border p-2 rounded">
+                            <option value="published">Published</option>
+                            <option value="hold">Hold (Not Published)</option>
+                        </select>
+                    </div>
+                    <div id="systemHoldReasonField" class="hidden">
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Hold Reason (Error Message for Users)</label>
+                        <input type="text" id="systemHoldReason" class="w-full border p-2 rounded" placeholder="This system is currently unavailable...">
+                    </div>
+                </div>
+
+                <!-- Update Form Fields -->
+                <div id="updateFormFields" class="hidden space-y-4">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Topic</label>
+                        <input type="text" id="updateTopic" class="w-full border p-2 rounded text-2xl font-bold" placeholder="UPDATE TOPIC...">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Cover Image</label>
+                        <input type="file" id="updateCoverFile" class="w-full border p-2 rounded" accept="image/*" onchange="handleUpdateCoverSelect(this)">
+                        <input type="hidden" id="updateCoverBase64">
+                        <div id="updateCoverPreview" class="mt-2 text-xs text-green-600 truncate font-bold"></div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Detail (Long Text)</label>
+                        <textarea id="updateDetail" rows="10" class="w-full border p-2 rounded" placeholder="Update details..."></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Other Information</label>
+                        <textarea id="updateOther" rows="3" class="w-full border p-2 rounded" placeholder="Additional information..."></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Attachment File (Optional)</label>
+                        <input type="file" id="updateAttachmentFile" class="w-full border p-2 rounded" onchange="handleUpdateAttachmentSelect(this)">
+                        <input type="hidden" id="updateAttachmentBase64">
+                        <div id="updateAttachmentPreview" class="mt-2 text-xs text-green-600 truncate font-bold"></div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Status</label>
+                        <select id="updateStatus" class="w-full border p-2 rounded">
+                            <option value="published">Published</option>
+                            <option value="hold">Hold (Not Published)</option>
+                        </select>
+                    </div>
+                    <div id="updateHoldReasonField" class="hidden">
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Hold Reason (Error Message for Users)</label>
+                        <input type="text" id="updateHoldReason" class="w-full border p-2 rounded" placeholder="This update is currently unavailable...">
+                    </div>
+                </div>
+
+                <!-- Banner Form Fields -->
+                <div id="bannerFormFields" class="hidden space-y-4">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Banner Position</label>
+                        <select id="bannerPosition" class="w-full border p-2 rounded">
+                            <option value="1">Banner 1 (Left/Top)</option>
+                            <option value="2">Banner 2 (Right/Bottom)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Upload Banner Image (Recommended: 1200x400px)</label>
+                        <input type="file" id="bannerFile" class="w-full border p-2 rounded" accept="image/*" onchange="handleBannerFileSelect(this)">
+                        <input type="hidden" id="bannerBase64">
+                        <div id="bannerFilePreview" class="mt-2 text-xs text-green-600 truncate font-bold"></div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Status</label>
+                        <select id="bannerStatus" class="w-full border p-2 rounded">
+                            <option value="published">Published</option>
+                            <option value="hold">Hold (Not Published)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Settings Form Fields -->
+                <div id="settingsFormFields" class="hidden space-y-4">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">User Passcode</label>
+                        <input type="password" id="userPasscode" class="w-full border p-2 rounded" placeholder="New user passcode...">
+                        <div id="userPasscodeStatus" class="text-xs text-gray-500 mt-1"></div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Admin Passcode</label>
+                        <input type="password" id="adminPasscode" class="w-full border p-2 rounded" placeholder="New admin passcode...">
+                    </div>
+                    <div class="p-3 bg-yellow-50 rounded border border-yellow-200">
+                        <p class="text-sm text-yellow-700">Note: Passcode changes take effect immediately. Old passcodes will no longer work.</p>
+                    </div>
+                </div>
+
+                <div class="pt-4 flex justify-end space-x-3">
+                    <button type="button" onclick="closeAdminModal()" class="px-4 py-2 bg-gray-200 rounded text-gray-700">Cancel</button>
+                    <button type="button" id="deleteBtn" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 hidden" onclick="deleteContent()">Delete</button>
+                    <button type="submit" class="px-6 py-2 ttb-bg-orange text-white font-bold rounded shadow">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Admin Management Modal -->
+    <div id="adminManagementModal" class="fixed inset-0 bg-black/70 z-[120] hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+            <div class="p-6 border-b border-gray-200 flex justify-between items-center sticky top-0 bg-white z-10">
+                <h3 class="text-xl font-bold ttb-blue">Admin Management</h3>
+                <button onclick="closeAdminManagementModal()" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times text-xl"></i></button>
+            </div>
+            <div class="p-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="border rounded-xl p-6">
+                        <h4 class="font-bold text-lg ttb-blue mb-4 flex items-center">
+                            <i class="fas fa-key mr-2"></i> Passcode Management
+                        </h4>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-1">User Passcode</label>
+                                <div class="flex">
+                                    <input type="text" id="currentUserPasscode" class="w-full border p-2 rounded-l" readonly value="2026">
+                                    <button onclick="changePasscode('user')" class="ttb-bg-blue text-white px-4 py-2 rounded-r hover:bg-blue-800">Change</button>
+                                </div>
+                                <div id="userPasscodeWarning" class="mt-2 text-xs text-red-600 hidden">
+                                    <i class="fas fa-exclamation-triangle mr-1"></i> This passcode has been used for over 60 days. Please update for security.
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-1">Admin Passcode</label>
+                                <div class="flex">
+                                    <input type="text" id="currentAdminPasscode" class="w-full border p-2 rounded-l" readonly value="admin2026">
+                                    <button onclick="changePasscode('admin')" class="ttb-bg-orange text-white px-4 py-2 rounded-r hover:bg-orange-600">Change</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="border rounded-xl p-6">
+                        <h4 class="font-bold text-lg ttb-blue mb-4 flex items-center">
+                            <i class="fas fa-image mr-2"></i> Banner Management
+                        </h4>
+                        <div class="space-y-4">
+                            <div class="flex items-center justify-between p-3 bg-gray-50 rounded">
+                                <div>
+                                    <div class="font-semibold">Banner 1</div>
+                                    <div id="banner1Status" class="text-xs text-green-600">Published</div>
+                                </div>
+                                <button onclick="manageBanner(1)" class="text-blue-600 hover:text-blue-800 text-sm font-semibold">Manage</button>
+                            </div>
+                            <div class="flex items-center justify-between p-3 bg-gray-50 rounded">
+                                <div>
+                                    <div class="font-semibold">Banner 2</div>
+                                    <div id="banner2Status" class="text-xs text-green-600">Published</div>
+                                </div>
+                                <button onclick="manageBanner(2)" class="text-blue-600 hover:text-blue-800 text-sm font-semibold">Manage</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="border rounded-xl p-6 md:col-span-2">
+                        <h4 class="font-bold text-lg ttb-blue mb-4 flex items-center">
+                            <i class="fas fa-database mr-2"></i> Content Statistics
+                        </h4>
+                        <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+                            <div class="text-center p-4 bg-blue-50 rounded">
+                                <div class="text-3xl font-bold ttb-blue" id="statsMama">2</div>
+                                <div class="text-sm text-gray-600">MAMA</div>
+                            </div>
+                            <div class="text-center p-4 bg-green-50 rounded">
+                                <div class="text-3xl font-bold text-green-700" id="statsScript">0</div>
+                                <div class="text-sm text-gray-600">Script</div>
+                            </div>
+                            <div class="text-center p-4 bg-yellow-50 rounded">
+                                <div class="text-3xl font-bold text-yellow-700" id="statsOnepage">0</div>
+                                <div class="text-sm text-gray-600">One Page</div>
+                            </div>
+                            <div class="text-center p-4 bg-purple-50 rounded">
+                                <div class="text-3xl font-bold text-purple-700" id="statsSystem">0</div>
+                                <div class="text-sm text-gray-600">System</div>
+                            </div>
+                            <div class="text-center p-4 bg-pink-50 rounded">
+                                <div class="text-3xl font-bold text-pink-700" id="statsUpdate">0</div>
+                                <div class="text-sm text-gray-600">Update</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-8 pt-6 border-t border-gray-200">
+                    <button onclick="openAdminManagementModal()" class="ttb-bg-orange text-white font-bold py-3 px-6 rounded-lg shadow hover:bg-orange-600 transition">
+                        <i class="fas fa-cog mr-2"></i> Open Admin Management
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Viewer Modal (for PDF/Images) -->
+    <div id="viewerModal" class="fixed inset-0 bg-black/90 z-[110] hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl w-full max-w-4xl max-h-[95vh] flex flex-col relative">
+            <div class="p-4 border-b flex justify-between items-center bg-gray-50 rounded-t-xl">
+                <h3 id="viewerTitle" class="font-bold text-lg ttb-blue truncate pr-4"></h3>
+                <div class="flex space-x-2">
+                    <a id="viewerDownloadBtn" href="#" download class="hidden bg-green-600 text-white px-3 py-1 rounded text-sm"><i class="fas fa-download mr-1"></i> Download</a>
+                    <button onclick="closeViewerModal()" class="text-gray-500 hover:text-red-500 text-2xl">&times;</button>
+                </div>
+            </div>
+            <div id="viewerBody" class="flex-1 overflow-y-auto p-4 bg-gray-100 flex justify-center"></div>
+        </div>
+    </div>
+
+    <!-- --- JAVASCRIPT MODULE --- -->
+    <script type="module">
+        // Import Firebase (v10 via CDN)
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, query, orderBy, onSnapshot, getDocs, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         
-        // Auto-redirect to main app after 5 seconds
-        setTimeout(() => {
-            console.log('MAMA System ready');
-        }, 5000);
+        // Global Variables ที่ได้รับจาก Canvas Environment
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'mama-hub-default-id';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+        // Global State
+        let db;
+        let currentState = {
+            screen: 'home', // home, mama, script, onepage, system, update
+            mamaLevel: 'L1',
+            scriptSubCategory: 'Call',
+            updateDetailId: null
+        };
+        
+        let allContent = {
+            mama: [],
+            script: [],
+            onepage: [],
+            system: [],
+            update: [],
+            banner: [],
+            settings: []
+        };
+        
+        let isAdmin = false;
+        let isFirebaseReady = false;
+        let adminSettings = {
+            userPasscode: '2026',
+            adminPasscode: 'admin2026',
+            userPasscodeCreatedAt: new Date(Date.now() - 70 * 24 * 60 * 60 * 1000).toISOString() // 70 days ago for testing
+        };
+
+        // Init App: เชื่อมต่อ Firebase และทำการยืนยันตัวตน
+        async function initApp() {
+            if (!firebaseConfig) {
+                console.error("Firebase Config is missing from Canvas environment. Using Mock Data.");
+                loadMockData();
+                finishLoading(false, "Config ไม่พร้อมใช้งาน (Mock Mode)");
+                return;
+            }
+
+            try {
+                const app = initializeApp(firebaseConfig);
+                const auth = getAuth(app);
+                
+                // Authentication
+                if (initialAuthToken) {
+                    await signInWithCustomToken(auth, initialAuthToken);
+                    console.log("Firebase Auth successful with Custom Token.");
+                } else {
+                    await signInAnonymously(auth);
+                    console.log("Firebase Auth successful with Anonymous Sign-In.");
+                }
+                
+                db = getFirestore(app);
+                
+                // Load all collections
+                await loadAllCollections();
+                isFirebaseReady = true;
+                finishLoading(true, "เชื่อมต่อสำเร็จ");
+                
+                // Check passcode age warning
+                checkPasscodeAgeWarning();
+                
+            } catch (e) {
+                console.error("Firebase Initialization/Auth Error:", e);
+                loadMockData();
+                finishLoading(false, "เกิดข้อผิดพลาดในการเริ่มต้น (Mock Mode)");
+            }
+        }
+
+        async function loadAllCollections() {
+            const collections = ['mama', 'script', 'onepage', 'system', 'update', 'banner', 'settings'];
+            
+            for (const col of collections) {
+                try {
+                    const collectionPath = `artifacts/${appId}/public/data/${col}`;
+                    const q = query(collection(db, collectionPath), orderBy("createdAt", "desc"));
+                    
+                    onSnapshot(q, (snapshot) => {
+                        allContent[col] = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                        updateContentCounts();
+                        renderCurrentScreen();
+                    });
+                } catch (error) {
+                    console.error(`Error loading collection ${col}:`, error);
+                }
+            }
+        }
+
+        function loadMockData() {
+            allContent.mama = [
+                { id: 'm1', level: 'L1', title: 'MAMA Framework #1', file: '', status: 'published', createdAt: new Date().toISOString() },
+                { id: 'm2', level: 'L2', title: 'MAMA Framework #2', file: '', status: 'published', createdAt: new Date().toISOString() }
+            ];
+            
+            allContent.script = [
+                { id: 's1', subCategory: 'Call', title: 'Soft Opening Script', content: 'สวัสดีครับ ขออนุญาตใช้เวลา 3 นาที...', status: 'published', createdAt: new Date().toISOString() }
+            ];
+            
+            allContent.update = [
+                { id: 'u1', topic: 'New System Update', cover: '', detail: 'ระบบใหม่ได้ถูกเพิ่มเข้ามา...', other: 'Version 2.0.1', status: 'published', createdAt: new Date().toISOString() }
+            ];
+            
+            allContent.banner = [
+                { id: 'b1', position: '1', image: '', status: 'published', createdAt: new Date().toISOString() },
+                { id: 'b2', position: '2', image: '', status: 'published', createdAt: new Date().toISOString() }
+            ];
+            
+            updateContentCounts();
+        }
+
+        function finishLoading(online, message) {
+            const indicator = document.getElementById('dbStatus');
+            document.getElementById('statusMsg').innerText = message;
+            
+            if (online) {
+                indicator.classList.add('bg-green-500');
+                indicator.classList.remove('bg-gray-400', 'bg-red-500');
+            } else {
+                indicator.classList.add('bg-red-500');
+                indicator.classList.remove('bg-gray-400', 'bg-green-500');
+            }
+            
+            // Show Login screen after loading attempt
+            document.getElementById('loadingState').classList.add('hidden');
+            document.getElementById('loginState').classList.remove('hidden');
+            document.getElementById('loginState').classList.add('fade-in');
+        }
+
+        // --- LOGIN FUNCTIONS ---
+        window.attemptLogin = () => {
+            const pass = document.getElementById('passcodeInput').value;
+            const err = document.getElementById('loginError');
+            
+            if (pass === adminSettings.userPasscode) {
+                isAdmin = false;
+                enterApp('User Mode', 'bg-blue-800');
+            } else if (pass === adminSettings.adminPasscode) {
+                isAdmin = true;
+                enterApp('Admin Mode', 'bg-red-600');
+            } else {
+                err.innerText = "รหัสผ่านไม่ถูกต้อง";
+                document.getElementById('passcodeInput').classList.add('border-red-500');
+                setTimeout(() => {
+                    document.getElementById('passcodeInput').classList.remove('border-red-500');
+                    err.innerText = '';
+                }, 3000);
+            }
+        }
+
+        function enterApp(roleName, colorClass) {
+            document.getElementById('loginOverlay').classList.add('fade-out');
+            setTimeout(() => {
+                document.getElementById('loginOverlay').classList.add('hidden');
+                document.getElementById('mainApp').classList.remove('hidden');
+                
+                const badge = document.getElementById('userRoleBadge');
+                badge.innerText = roleName;
+                badge.className = `px-3 py-1 rounded-full text-xs font-bold text-white ${colorClass}`;
+                
+                // Show welcome animation
+                showWelcomeAnimation();
+                
+                // Load banners
+                renderBanners();
+                
+                // Show admin controls if admin
+                if (isAdmin) {
+                    document.getElementById('adminManagementBtn').classList.remove('hidden');
+                    checkPasscodeAgeWarning();
+                }
+                
+                renderCurrentScreen();
+            }, 500);
+        }
+
+        // --- WELCOME ANIMATION ---
+        function showWelcomeAnimation() {
+            const welcomeText = document.getElementById('welcomeText');
+            const spans = welcomeText.querySelectorAll('span');
+            
+            // Reset animation
+            spans.forEach(span => {
+                span.style.opacity = '0';
+                span.style.transform = 'translateY(20px)';
+            });
+            
+            // Animate each word
+            setTimeout(() => {
+                spans[0].style.animation = 'wordReveal 0.8s forwards';
+                
+                setTimeout(() => {
+                    spans[1].style.animation = 'wordReveal 0.8s forwards';
+                    
+                    setTimeout(() => {
+                        spans[2].style.animation = 'wordReveal 0.8s forwards';
+                        
+                        // After animation, show full text
+                        setTimeout(() => {
+                            welcomeText.classList.remove('word-animation');
+                            welcomeText.innerHTML = 'Welcome To MAMA Hub System';
+                        }, 3000);
+                    }, 1000);
+                }, 1000);
+            }, 500);
+        }
+
+        // --- BANNER FUNCTIONS ---
+        function renderBanners() {
+            const publishedBanners = allContent.banner.filter(b => b.status === 'published');
+            
+            publishedBanners.forEach(banner => {
+                const bannerEl = document.getElementById(`banner${banner.position}`);
+                const placeholder = document.getElementById(`bannerPlaceholder${banner.position}`);
+                
+                if (banner.image) {
+                    bannerEl.innerHTML = `<img src="${banner.image}" alt="Banner ${banner.position}" class="w-full h-full object-cover">`;
+                    if (placeholder) placeholder.classList.add('hidden');
+                } else if (placeholder) {
+                    placeholder.classList.remove('hidden');
+                }
+            });
+        }
+
+        // --- SCREEN NAVIGATION ---
+        window.goToHome = () => {
+            currentState.screen = 'home';
+            renderCurrentScreen();
+        }
+
+        window.selectMenu = (menu) => {
+            currentState.screen = menu;
+            renderCurrentScreen();
+        }
+
+        window.selectMamaLevel = (level) => {
+            currentState.mamaLevel = level;
+            
+            // Update button styles
+            ['L1', 'L2', 'L3'].forEach(l => {
+                const btn = document.getElementById(`mama${l}`);
+                if (l === level) {
+                    btn.classList.add('ttb-bg-blue', 'hover:bg-blue-800');
+                    btn.classList.remove('bg-gray-600', 'hover:bg-gray-700');
+                } else {
+                    btn.classList.add('bg-gray-600', 'hover:bg-gray-700');
+                    btn.classList.remove('ttb-bg-blue', 'hover:bg-blue-800');
+                }
+            });
+            
+            document.getElementById('mamaContent').classList.remove('hidden');
+        }
+
+        window.selectScriptSubCategory = (subCategory) => {
+            currentState.scriptSubCategory = subCategory;
+            
+            // Update button styles
+            ['Call', 'Counter', 'Outbound', 'Objection'].forEach(sub => {
+                const btn = document.getElementById(`scriptSub_${sub}`);
+                if (sub === subCategory) {
+                    btn.classList.add('active-sub');
+                    btn.classList.remove('text-gray-600', 'hover:bg-blue-50');
+                } else {
+                    btn.classList.remove('active-sub');
+                    btn.classList.add('text-gray-600', 'hover:bg-blue-50');
+                }
+            });
+            
+            renderScriptContent();
+        }
+
+        // --- RENDER FUNCTIONS ---
+        function renderCurrentScreen() {
+            // Hide all screens
+            ['homeScreen', 'mamaScreen', 'scriptScreen', 'onepageScreen', 'systemScreen', 'updateScreen'].forEach(screen => {
+                document.getElementById(screen).classList.add('hidden');
+            });
+            
+            // Show active screen
+            document.getElementById(`${currentState.screen}Screen`).classList.remove('hidden');
+            
+            // Update nav subtitle
+            const navSubtitle = document.getElementById('navSubtitle');
+            const titles = {
+                'home': 'สื่อสารอย่างมีทิศทาง | วิเคราะห์อย่างเชี่ยวชาญ | นำเสนออย่างทรงคุณค่า',
+                'mama': 'MAMA Framework Documents',
+                'script': 'Script Library',
+                'onepage': 'One Page Documents',
+                'system': 'System Tools',
+                'update': 'Latest Updates'
+            };
+            navSubtitle.textContent = titles[currentState.screen];
+            
+            // Render content based on screen
+            switch(currentState.screen) {
+                case 'mama':
+                    selectMamaLevel('L1');
+                    break;
+                case 'script':
+                    renderScriptContent();
+                    break;
+                case 'onepage':
+                    renderOnepageContent();
+                    break;
+                case 'system':
+                    renderSystemContent();
+                    break;
+                case 'update':
+                    renderUpdateContent();
+                    break;
+            }
+            
+            // Show admin controls
+            if (isAdmin) {
+                document.getElementById(`${currentState.screen}AdminControls`).classList.remove('hidden');
+            }
+        }
+
+        function updateContentCounts() {
+            // Update menu counts
+            document.getElementById('mamaCount').textContent = allContent.mama.filter(m => m.status === 'published').length;
+            document.getElementById('scriptCount').textContent = allContent.script.filter(s => s.status === 'published').length;
+            document.getElementById('onepageCount').textContent = allContent.onepage.filter(o => o.status === 'published').length;
+            document.getElementById('systemCount').textContent = allContent.system.filter(s => s.status === 'published').length;
+            document.getElementById('updateCount').textContent = allContent.update.filter(u => u.status === 'published').length;
+            
+            // Update admin stats
+            if (isAdmin) {
+                document.getElementById('statsMama').textContent = allContent.mama.length;
+                document.getElementById('statsScript').textContent = allContent.script.length;
+                document.getElementById('statsOnepage').textContent = allContent.onepage.length;
+                document.getElementById('statsSystem').textContent = allContent.system.length;
+                document.getElementById('statsUpdate').textContent = allContent.update.length;
+            }
+        }
+
+        function renderScriptContent() {
+            const list = document.getElementById('scriptContentList');
+            list.innerHTML = '';
+            
+            const filtered = allContent.script.filter(s => 
+                s.subCategory === currentState.scriptSubCategory && 
+                s.status === 'published'
+            );
+            
+            if (filtered.length === 0) {
+                list.innerHTML = `
+                    <div class="col-span-full py-12 text-center text-gray-400 bg-white rounded-xl border-2 border-dashed border-gray-200">
+                        <i class="fas fa-pen-to-square text-4xl mb-4 text-gray-300"></i>
+                        <p class="text-lg mb-2">No scripts found</p>
+                        <p class="text-sm">${isAdmin ? 'Click "Add Script" to create new content' : 'Content will be added soon'}</p>
+                    </div>`;
+                return;
+            }
+            
+            filtered.forEach(item => {
+                const card = document.createElement('div');
+                card.className = "bg-white rounded-xl shadow-sm hover:shadow-lg p-5 border border-gray-100 content-card cursor-pointer relative group";
+                
+                const adminBtn = isAdmin ? `
+                    <div class="absolute top-2 right-2 flex space-x-1">
+                        <button onclick="editContent('script', '${item.id}')" class="p-2 text-blue-600 hover:text-blue-800 rounded-full bg-white/80 hover:bg-white transition">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button onclick="deleteContent('script', '${item.id}')" class="p-2 text-red-600 hover:text-red-800 rounded-full bg-white/80 hover:bg-white transition">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>` : '';
+                
+                card.innerHTML = `
+                    ${adminBtn}
+                    <div class="flex justify-between items-start mb-3">
+                        <h4 class="font-bold text-lg text-gray-800">${item.title}</h4>
+                        <i class="fas fa-quote-left ttb-blue text-2xl"></i>
+                    </div>
+                    <p class="text-sm text-gray-600 line-clamp-4 mb-4 h-20">${item.content}</p>
+                    <div class="text-xs text-gray-400 flex items-center">
+                        <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded">${item.subCategory}</span>
+                        <span class="ml-auto">${new Date(item.createdAt).toLocaleDateString('th-TH')}</span>
+                    </div>`;
+                
+                card.onclick = (e) => {
+                    if(!e.target.closest('button')) {
+                        openViewer('script', item);
+                    }
+                };
+                
+                list.appendChild(card);
+            });
+        }
+
+        function renderOnepageContent() {
+            const list = document.getElementById('onepageContentList');
+            list.innerHTML = '';
+            
+            const filtered = allContent.onepage.filter(o => o.status === 'published');
+            
+            if (filtered.length === 0) {
+                list.innerHTML = `
+                    <div class="col-span-full py-12 text-center text-gray-400 bg-white rounded-xl border-2 border-dashed border-gray-200">
+                        <i class="fas fa-file-image text-4xl mb-4 text-gray-300"></i>
+                        <p class="text-lg mb-2">No one page documents found</p>
+                        <p class="text-sm">${isAdmin ? 'Click "Add One Page" to create new content' : 'Content will be added soon'}</p>
+                    </div>`;
+                return;
+            }
+            
+            filtered.forEach(item => {
+                const card = document.createElement('div');
+                card.className = "bg-white rounded-xl shadow-sm hover:shadow-lg p-5 border border-gray-100 content-card cursor-pointer relative group";
+                
+                const adminBtn = isAdmin ? `
+                    <div class="absolute top-2 right-2 flex space-x-1">
+                        <button onclick="editContent('onepage', '${item.id}')" class="p-2 text-blue-600 hover:text-blue-800 rounded-full bg-white/80 hover:bg-white transition">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button onclick="deleteContent('onepage', '${item.id}')" class="p-2 text-red-600 hover:text-red-800 rounded-full bg-white/80 hover:bg-white transition">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>` : '';
+                
+                const isPdf = item.file && item.file.includes('application/pdf');
+                const preview = isPdf ? 
+                    '<div class="h-40 bg-red-50 rounded-lg flex items-center justify-center"><i class="fas fa-file-pdf text-6xl text-red-500"></i></div>' :
+                    `<img src="${item.file || 'https://placehold.co/600x400/F05A22/FFFFFF?text=ONEPAGE'}" class="h-40 w-full object-cover rounded-lg">`;
+                
+                card.innerHTML = `
+                    ${adminBtn}
+                    ${preview}
+                    <h4 class="font-bold text-gray-800 mt-4">${item.title}</h4>
+                    <div class="text-xs text-gray-400 mt-2 flex items-center">
+                        <span>${isPdf ? 'PDF Document' : 'Image File'}</span>
+                        <span class="ml-auto">${new Date(item.createdAt).toLocaleDateString('th-TH')}</span>
+                    </div>`;
+                
+                card.onclick = (e) => {
+                    if(!e.target.closest('button')) {
+                        openViewer('onepage', item);
+                    }
+                };
+                
+                list.appendChild(card);
+            });
+        }
+
+        function renderSystemContent() {
+            const list = document.getElementById('systemContentList');
+            list.innerHTML = '';
+            
+            const filtered = allContent.system.filter(s => s.status === 'published');
+            
+            if (filtered.length === 0) {
+                list.innerHTML = `
+                    <div class="col-span-full py-12 text-center text-gray-400 bg-white rounded-xl border-2 border-dashed border-gray-200">
+                        <i class="fas fa-laptop-code text-4xl mb-4 text-gray-300"></i>
+                        <p class="text-lg mb-2">No system tools found</p>
+                        <p class="text-sm">${isAdmin ? 'Click "Add System" to create new content' : 'Content will be added soon'}</p>
+                    </div>`;
+                return;
+            }
+            
+            filtered.forEach(item => {
+                const card = document.createElement('div');
+                card.className = "bg-white rounded-xl shadow-sm hover:shadow-lg p-5 border border-gray-100 content-card cursor-pointer relative group";
+                
+                const adminBtn = isAdmin ? `
+                    <div class="absolute top-2 right-2 flex space-x-1">
+                        <button onclick="editContent('system', '${item.id}')" class="p-2 text-blue-600 hover:text-blue-800 rounded-full bg-white/80 hover:bg-white transition">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button onclick="deleteContent('system', '${item.id}')" class="p-2 text-red-600 hover:text-red-800 rounded-full bg-white/80 hover:bg-white transition">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>` : '';
+                
+                card.innerHTML = `
+                    ${adminBtn}
+                    <div class="h-32 bg-gray-100 rounded-lg mb-3 overflow-hidden relative system-card">
+                        <img src="${item.image || 'https://placehold.co/600x400/003366/FFFFFF?text=SYSTEM+TOOL'}" 
+                             class="w-full h-full object-cover transition duration-500">
+                        <div class="absolute bottom-2 right-2 bg-white rounded-full p-2 shadow">
+                            <i class="fas fa-external-link-alt text-blue-500"></i>
+                        </div>
+                    </div>
+                    <h4 class="font-bold text-gray-800">${item.title}</h4>
+                    <p class="text-xs text-blue-500 truncate mt-1">${item.url || 'No URL provided'}</p>
+                    <div class="text-xs text-gray-400 mt-2">${new Date(item.createdAt).toLocaleDateString('th-TH')}</div>`;
+                
+                card.onclick = (e) => {
+                    if(!e.target.closest('button') && item.url) {
+                        window.open(item.url, '_blank');
+                    }
+                };
+                
+                list.appendChild(card);
+            });
+        }
+
+        function renderUpdateContent() {
+            const list = document.getElementById('updateListCover');
+            const detailView = document.getElementById('updateDetailView');
+            
+            // If viewing detail, don't render list
+            if (currentState.updateDetailId) {
+                detailView.classList.remove('hidden');
+                list.classList.add('hidden');
+                renderUpdateDetail(currentState.updateDetailId);
+                return;
+            }
+            
+            detailView.classList.add('hidden');
+            list.classList.remove('hidden');
+            list.innerHTML = '';
+            
+            const filtered = allContent.update.filter(u => u.status === 'published');
+            
+            if (filtered.length === 0) {
+                list.innerHTML = `
+                    <div class="col-span-full py-12 text-center text-gray-400 bg-white rounded-xl border-2 border-dashed border-gray-200">
+                        <i class="fas fa-newspaper text-4xl mb-4 text-gray-300"></i>
+                        <p class="text-lg mb-2">No updates found</p>
+                        <p class="text-sm">${isAdmin ? 'Click "Add Update" to create new content' : 'Check back later for updates'}</p>
+                    </div>`;
+                return;
+            }
+            
+            filtered.forEach(item => {
+                const card = document.createElement('div');
+                card.className = "bg-white rounded-xl shadow-sm hover:shadow-lg border border-gray-100 content-card cursor-pointer relative group overflow-hidden";
+                
+                const adminBtn = isAdmin ? `
+                    <div class="absolute top-2 right-2 flex space-x-1 z-10">
+                        <button onclick="editContent('update', '${item.id}')" class="p-2 text-blue-600 hover:text-blue-800 rounded-full bg-white/80 hover:bg-white transition">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button onclick="deleteContent('update', '${item.id}')" class="p-2 text-red-600 hover:text-red-800 rounded-full bg-white/80 hover:bg-white transition">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>` : '';
+                
+                card.innerHTML = `
+                    ${adminBtn}
+                    <div class="h-48 overflow-hidden">
+                        <img src="${item.cover || 'https://placehold.co/600x400/003366/FFFFFF?text=UPDATE'}" 
+                             class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+                    </div>
+                    <div class="p-5">
+                        <h4 class="font-bold text-xl text-gray-800 mb-2 line-clamp-2">${item.topic}</h4>
+                        <p class="text-sm text-gray-600 line-clamp-2 mb-3">${item.detail || ''}</p>
+                        <div class="text-xs text-gray-400 flex items-center">
+                            <span>${new Date(item.createdAt).toLocaleDateString('th-TH')}</span>
+                            ${item.attachment ? '<span class="ml-auto text-blue-600"><i class="fas fa-paperclip mr-1"></i>Attachment</span>' : ''}
+                        </div>
+                    </div>`;
+                
+                card.onclick = (e) => {
+                    if(!e.target.closest('button')) {
+                        currentState.updateDetailId = item.id;
+                        renderCurrentScreen();
+                    }
+                };
+                
+                list.appendChild(card);
+            });
+        }
+
+        function renderUpdateDetail(id) {
+            const item = allContent.update.find(u => u.id === id);
+            if (!item) return;
+            
+            document.getElementById('updateDetailCover').src = item.cover || 'https://placehold.co/600x400/003366/FFFFFF?text=UPDATE';
+            document.getElementById('updateDetailTopic').textContent = item.topic;
+            document.getElementById('updateDetailContent').textContent = item.detail || '';
+            document.getElementById('updateDetailOther').textContent = item.other || '';
+            
+            const downloadBtn = document.getElementById('updateDownloadBtn');
+            if (item.attachment) {
+                downloadBtn.classList.remove('hidden');
+                downloadBtn.onclick = () => {
+                    const link = document.createElement('a');
+                    link.href = item.attachment;
+                    link.download = `${item.topic}_attachment`;
+                    link.click();
+                };
+            } else {
+                downloadBtn.classList.add('hidden');
+            }
+        }
+
+        window.backToUpdateList = () => {
+            currentState.updateDetailId = null;
+            renderCurrentScreen();
+        }
+
+        // --- MAMA PDF FUNCTIONS ---
+        window.openMamaPdf = (type) => {
+            const level = currentState.mamaLevel;
+            const mamaDoc = allContent.mama.find(m => m.level === level && m.status === 'published');
+            
+            if (!mamaDoc || !mamaDoc.file) {
+                alert('PDF not available for this level');
+                return;
+            }
+            
+            document.getElementById('mamaPdfTitle').textContent = mamaDoc.title;
+            document.getElementById('mamaPdfContainer').innerHTML = `
+                <iframe src="${mamaDoc.file}" class="w-full h-full" frameborder="0"></iframe>`;
+            
+            const downloadBtn = document.getElementById('mamaDownloadBtn');
+            downloadBtn.onclick = () => {
+                const link = document.createElement('a');
+                link.href = mamaDoc.file;
+                link.download = `${mamaDoc.title}.pdf`;
+                link.click();
+            };
+            
+            document.getElementById('mamaPdfViewer').classList.remove('hidden');
+        }
+
+        window.closeMamaPdf = () => {
+            document.getElementById('mamaPdfViewer').classList.add('hidden');
+        }
+
+        // --- VIEWER FUNCTIONS ---
+        window.openViewer = (type, item) => {
+            const modal = document.getElementById('viewerModal');
+            document.getElementById('viewerTitle').textContent = item.title;
+            const body = document.getElementById('viewerBody');
+            const btn = document.getElementById('viewerDownloadBtn');
+            
+            body.innerHTML = '';
+            btn.classList.add('hidden');
+            
+            if (type === 'onepage') {
+                if (item.file) {
+                    btn.classList.remove('hidden');
+                    btn.href = item.file;
+                    btn.download = `${item.title}`;
+                    
+                    const isPdf = item.file.includes('application/pdf');
+                    if (isPdf) {
+                        body.innerHTML = `<iframe src="${item.file}" class="w-full h-full border rounded"></iframe>`;
+                    } else {
+                        body.innerHTML = `<img src="${item.file}" class="max-w-full h-auto shadow max-h-[80vh] object-contain">`;
+                    }
+                }
+            } else if (type === 'script') {
+                body.innerHTML = `
+                    <div class="p-6 bg-white rounded-lg shadow w-full max-w-2xl">
+                        <div class="whitespace-pre-wrap text-lg text-gray-700">${item.content}</div>
+                    </div>`;
+            }
+            
+            modal.classList.remove('hidden');
+        }
+
+        window.closeViewerModal = () => {
+            document.getElementById('viewerModal').classList.add('hidden');
+        }
+
+        // --- ADMIN FUNCTIONS ---
+        window.openAdminManagementModal = () => {
+            if (!isAdmin) return;
+            
+            // Update current values
+            document.getElementById('currentUserPasscode').value = adminSettings.userPasscode;
+            document.getElementById('currentAdminPasscode').value = adminSettings.adminPasscode;
+            
+            // Update banner status
+            const banner1 = allContent.banner.find(b => b.position === '1');
+            const banner2 = allContent.banner.find(b => b.position === '2');
+            
+            document.getElementById('banner1Status').textContent = banner1 ? 
+                (banner1.status === 'published' ? 'Published' : 'Hold') : 'Not Set';
+            document.getElementById('banner2Status').textContent = banner2 ? 
+                (banner2.status === 'published' ? 'Published' : 'Hold') : 'Not Set';
+            
+            document.getElementById('adminManagementModal').classList.remove('hidden');
+        }
+
+        window.closeAdminManagementModal = () => {
+            document.getElementById('adminManagementModal').classList.add('hidden');
+        }
+
+        window.changePasscode = (type) => {
+            openAdminModal('settings', type === 'user' ? 'userPasscode' : 'adminPasscode');
+        }
+
+        window.manageBanner = (position) => {
+            const banner = allContent.banner.find(b => b.position === position.toString());
+            openAdminModal('banner', banner ? banner.id : null, { position: position.toString() });
+        }
+
+        // --- ADMIN MODAL FUNCTIONS ---
+        window.openAdminModal = (type, id = null, data = {}) => {
+            if (!isAdmin) return;
+            
+            const modal = document.getElementById('adminModal');
+            const form = document.getElementById('contentForm');
+            const deleteBtn = document.getElementById('deleteBtn');
+            
+            // Reset form
+            form.reset();
+            document.getElementById('contentId').value = id || '';
+            document.getElementById('contentType').value = type;
+            
+            // Hide all form fields
+            ['mama', 'script', 'onepage', 'system', 'update', 'banner', 'settings'].forEach(t => {
+                document.getElementById(`${t}FormFields`).classList.add('hidden');
+            });
+            
+            // Show appropriate form fields
+            document.getElementById(`${type}FormFields`).classList.remove('hidden');
+            
+            // Set modal title
+            const titles = {
+                'mama': 'Manage MAMA Document',
+                'script': 'Manage Script',
+                'onepage': 'Manage One Page',
+                'system': 'Manage System Tool',
+                'update': 'Manage Update',
+                'banner': 'Manage Banner',
+                'settings': 'Manage Settings'
+            };
+            document.getElementById('adminModalTitle').textContent = titles[type];
+            
+            // Show delete button if editing
+            if (id) {
+                deleteBtn.classList.remove('hidden');
+            } else {
+                deleteBtn.classList.add('hidden');
+            }
+            
+            // Load data if editing
+            if (id) {
+                const collection = allContent[type];
+                const item = collection.find(item => item.id === id);
+                if (item) {
+                    loadFormData(type, item);
+                }
+            } else if (Object.keys(data).length > 0) {
+                // Set initial data for new items
+                Object.keys(data).forEach(key => {
+                    const input = document.getElementById(`${type}${key.charAt(0).toUpperCase() + key.slice(1)}`);
+                    if (input) input.value = data[key];
+                });
+            }
+            
+            // Setup status change listeners
+            setupStatusChangeListeners(type);
+            
+            modal.classList.remove('hidden');
+        }
+
+        function loadFormData(type, item) {
+            const fields = {
+                'mama': ['level', 'title', 'status', 'holdReason'],
+                'script': ['subCategory', 'title', 'content', 'status', 'holdReason'],
+                'onepage': ['title', 'status', 'holdReason'],
+                'system': ['title', 'url', 'status', 'holdReason'],
+                'update': ['topic', 'detail', 'other', 'status', 'holdReason'],
+                'banner': ['position', 'status'],
+                'settings': ['userPasscode', 'adminPasscode']
+            };
+            
+            fields[type].forEach(field => {
+                const input = document.getElementById(`${type}${field.charAt(0).toUpperCase() + field.slice(1)}`);
+                if (input && item[field] !== undefined) {
+                    input.value = item[field];
+                }
+            });
+            
+            // Handle file previews
+            if (item.file) {
+                document.getElementById(`${type}FilePreview`).textContent = 'File already uploaded';
+            }
+            if (item.cover) {
+                document.getElementById('updateCoverPreview').textContent = 'Cover already uploaded';
+            }
+            if (item.image) {
+                document.getElementById('bannerFilePreview').textContent = 'Image already uploaded';
+            }
+        }
+
+        function setupStatusChangeListeners(type) {
+            const statusSelect = document.getElementById(`${type}Status`);
+            const holdReasonField = document.getElementById(`${type}HoldReasonField`);
+            
+            if (statusSelect && holdReasonField) {
+                const toggleHoldReason = () => {
+                    if (statusSelect.value === 'hold') {
+                        holdReasonField.classList.remove('hidden');
+                    } else {
+                        holdReasonField.classList.add('hidden');
+                    }
+                };
+                
+                statusSelect.onchange = toggleHoldReason;
+                toggleHoldReason(); // Initial state
+            }
+        }
+
+        window.closeAdminModal = () => {
+            document.getElementById('adminModal').classList.add('hidden');
+        }
+
+        // --- FILE HANDLING ---
+        window.handleMamaFileSelect = (input) => {
+            handleFileSelect(input, 'mamaFilePreview', 'mamaBase64', 5);
+        }
+
+        window.handleOnepageFileSelect = (input) => {
+            handleFileSelect(input, 'onepageFilePreview', 'onepageBase64', 5);
+        }
+
+        window.handleSystemFileSelect = (input) => {
+            handleFileSelect(input, 'systemFilePreview', 'systemBase64', 5);
+        }
+
+        window.handleUpdateCoverSelect = (input) => {
+            handleFileSelect(input, 'updateCoverPreview', 'updateCoverBase64', 5);
+        }
+
+        window.handleUpdateAttachmentSelect = (input) => {
+            handleFileSelect(input, 'updateAttachmentPreview', 'updateAttachmentBase64', 10);
+        }
+
+        window.handleBannerFileSelect = (input) => {
+            handleFileSelect(input, 'bannerFilePreview', 'bannerBase64', 5);
+        }
+
+        function handleFileSelect(input, previewId, base64Id, maxSizeMB) {
+            const file = input.files[0];
+            const maxSize = maxSizeMB * 1024 * 1024;
+            
+            if (file && file.size < maxSize) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    document.getElementById(base64Id).value = e.target.result;
+                    document.getElementById(previewId).textContent = `${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
+                };
+                reader.readAsDataURL(file);
+            } else if (file) {
+                alert(`File size exceeds ${maxSizeMB}MB limit. Please choose a smaller file.`);
+                input.value = '';
+                document.getElementById(previewId).textContent = '';
+            }
+        }
+
+        // --- FORM SUBMISSION ---
+        document.getElementById('contentForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (!isFirebaseReady || !isAdmin) return;
+            
+            const type = document.getElementById('contentType').value;
+            const id = document.getElementById('contentId').value;
+            
+            const data = await prepareFormData(type);
+            
+            try {
+                const collectionPath = `artifacts/${appId}/public/data/${type}`;
+                
+                if (id) {
+                    // Update existing document
+                    await updateDoc(doc(db, collectionPath, id), data);
+                    console.log(`${type} document updated:`, id);
+                } else {
+                    // Add new document
+                    await addDoc(collection(db, collectionPath), data);
+                    console.log(`New ${type} document added`);
+                }
+                
+                closeAdminModal();
+            } catch (err) {
+                console.error(`Error saving ${type}:`, err);
+                alert(`Save failed: ${err.message}`);
+            }
+        });
+
+        async function prepareFormData(type) {
+            const baseData = {
+                updatedAt: new Date().toISOString()
+            };
+            
+            if (!document.getElementById('contentId').value) {
+                baseData.createdAt = new Date().toISOString();
+            }
+            
+            switch(type) {
+                case 'mama':
+                    return {
+                        ...baseData,
+                        level: document.getElementById('mamaLevel').value,
+                        title: document.getElementById('mamaTitle').value,
+                        file: document.getElementById('mamaBase64').value,
+                        status: document.getElementById('mamaStatus').value,
+                        holdReason: document.getElementById('mamaHoldReason').value || ''
+                    };
+                    
+                case 'script':
+                    return {
+                        ...baseData,
+                        subCategory: document.getElementById('scriptSubCategory').value,
+                        title: document.getElementById('scriptTitle').value,
+                        content: document.getElementById('scriptContent').value,
+                        status: document.getElementById('scriptStatus').value,
+                        holdReason: document.getElementById('scriptHoldReason').value || ''
+                    };
+                    
+                case 'onepage':
+                    return {
+                        ...baseData,
+                        title: document.getElementById('onepageTitle').value,
+                        file: document.getElementById('onepageBase64').value,
+                        status: document.getElementById('onepageStatus').value,
+                        holdReason: document.getElementById('onepageHoldReason').value || ''
+                    };
+                    
+                case 'system':
+                    return {
+                        ...baseData,
+                        title: document.getElementById('systemTitle').value,
+                        url: document.getElementById('systemUrl').value,
+                        image: document.getElementById('systemBase64').value,
+                        status: document.getElementById('systemStatus').value,
+                        holdReason: document.getElementById('systemHoldReason').value || ''
+                    };
+                    
+                case 'update':
+                    return {
+                        ...baseData,
+                        topic: document.getElementById('updateTopic').value,
+                        cover: document.getElementById('updateCoverBase64').value,
+                        detail: document.getElementById('updateDetail').value,
+                        other: document.getElementById('updateOther').value,
+                        attachment: document.getElementById('updateAttachmentBase64').value,
+                        status: document.getElementById('updateStatus').value,
+                        holdReason: document.getElementById('updateHoldReason').value || ''
+                    };
+                    
+                case 'banner':
+                    return {
+                        ...baseData,
+                        position: document.getElementById('bannerPosition').value,
+                        image: document.getElementById('bannerBase64').value,
+                        status: document.getElementById('bannerStatus').value
+                    };
+                    
+                case 'settings':
+                    const userPasscode = document.getElementById('userPasscode').value;
+                    const adminPasscode = document.getElementById('adminPasscode').value;
+                    
+                    if (userPasscode) {
+                        adminSettings.userPasscode = userPasscode;
+                        adminSettings.userPasscodeCreatedAt = new Date().toISOString();
+                    }
+                    if (adminPasscode) adminSettings.adminPasscode = adminPasscode;
+                    
+                    // Save to Firebase
+                    return {
+                        ...baseData,
+                        userPasscode: adminSettings.userPasscode,
+                        adminPasscode: adminSettings.adminPasscode,
+                        userPasscodeCreatedAt: adminSettings.userPasscodeCreatedAt
+                    };
+            }
+        }
+
+        window.editContent = (type, id) => {
+            openAdminModal(type, id);
+        }
+
+        window.deleteContent = async (type, id) => {
+            if (!isAdmin || !confirm('Are you sure you want to delete this item?')) return;
+            
+            try {
+                const collectionPath = `artifacts/${appId}/public/data/${type}`;
+                await deleteDoc(doc(db, collectionPath, id));
+                closeAdminModal();
+            } catch (err) {
+                console.error(`Error deleting ${type}:`, err);
+                alert('Delete failed');
+            }
+        }
+
+        // --- PASSCODE AGE WARNING ---
+        function checkPasscodeAgeWarning() {
+            if (!isAdmin) return;
+            
+            const created = new Date(adminSettings.userPasscodeCreatedAt);
+            const now = new Date();
+            const daysDiff = Math.floor((now - created) / (1000 * 60 * 60 * 24));
+            
+            if (daysDiff > 60) {
+                const warning = document.getElementById('userPasscodeWarning');
+                warning.classList.remove('hidden');
+                warning.innerHTML = `<i class="fas fa-exclamation-triangle mr-1"></i> This passcode has been used for ${daysDiff} days. Please update for security.`;
+                
+                // Also update in admin management modal
+                document.getElementById('userPasscodeStatus').textContent = `Used for ${daysDiff} days (update recommended)`;
+                document.getElementById('userPasscodeStatus').classList.add('text-red-600');
+            }
+        }
+
+        // Run Init
+        initApp();
+
+        // Expose functions to window for onclick handlers
+        window.openScriptAdminModal = () => openAdminModal('script');
+        window.openOnepageAdminModal = () => openAdminModal('onepage');
+        window.openSystemAdminModal = () => openAdminModal('system');
+        window.openUpdateAdminModal = () => openAdminModal('update');
+
     </script>
 </body>
 </html>
